@@ -1,0 +1,31 @@
+[project]
+name = "aukpy"
+version = "0.0.1"
+description = "Python library for working with eBird data"
+python = "^3.8"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/vluzko/aukpy"
+repository = "https://github.com/vluzko/aukpy"
+keywords = ["ebird"]
+
+[dependencies]
+
+[dev-dependencies]
+
+[tool-black]
+line-length = 110
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.mypy_cache
+    | \.venv
+  )/
+)
+'''
+
+[build-system]
+requires = ["setuptools"]
