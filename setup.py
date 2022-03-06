@@ -1,2 +1,2 @@
 import setuptools
-setuptools.setup()
+setuptools.setup(name='aukpy', packages=setuptools.find_packages())
