@@ -111,6 +111,19 @@ HEADING_TYPES = {
 }
 
 
+COUNTRY_TABLE_Q = """CREATE TABLE IF NOT EXISTS countries (
+    id: integer PRIMARY KEY,
+    name: text,
+    code: text,
+    UNIQUE(name, code)
+);"""
+STATE_TABLE_Q = "CREATE TABLE IF NOT EXISTS states (id: integer PRIMARY KEY, name: text, code: text, country_id integer, FOREIGN KEY (country_id) REFERENCES countries(id), UNIQUE(name, code));"
+COUNTY_TABLE_Q = "CREATE TABLE IF NOT EXISTS states (id: integer PRIMARY KEY, name: text, code: text, state_id integer, FOREIGN KEY (state_id) REFERENCES states(id), UNIQUE(name, code));"
+BCR_CODE_TABLE_Q = "CREATE TABLE IF NOT EXISTS bcrcodes (code: integer PRIMARY KEY, name: text);"
+IBA_CODE_TABLE_Q = "CREATE TABLE IF NOT EXISTS ibacodes (code: integer PRIMARY KEY, name: text);"
+SPECIES_TABLE_Q = "CREATE TABLE IF NOT EXISTS species (id: integer PRIMARY KEY, common_name: text, scientific_name: text, subspecies_common_name: text, subspecies_scientific_name: text);"
+
+
 def build_db(input_path: Path, output_path: Optional[Path] = None):
     """Build a sqlite database from an input file
 
