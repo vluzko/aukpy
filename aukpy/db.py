@@ -1,14 +1,19 @@
+"""Tools for building a sqlite database containing the eBird dataset.
+The full dataset is distributed as a ~400GB csv file, much of which is redundant.
+We store it in a fully normalized sqlite file instead, which reduces the size of the data
+and makes querying it much faster.
+"""
 import sqlite3
 import csv
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 from aukpy import config
 
 
-HEADING = tuple(
-    x.replace(" ", "_")
+HEADINGS = tuple(
+    x.replace(" ", "_").lower()
     for x in (
         "GLOBAL UNIQUE IDENTIFIER",
         "LAST EDITED DATE",
@@ -60,71 +65,159 @@ HEADING = tuple(
     )
 )
 
-HEADING_TYPES = {
-    "GLOBAL_UNIQUE_IDENTIFIER": "text",
-    "LAST_EDITED_DATE": "text",
-    "TAXONOMIC_ORDER": "integer",
-    "CATEGORY": "text",
-    "COMMON_NAME": "text",
-    "SCIENTIFIC_NAME": "text",
-    "SUBSPECIES_COMMON_NAME": "text",
-    "SUBSPECIES_SCIENTIFIC_NAME": "text",
-    "OBSERVATION_COUNT": "integer",
-    "BREEDING_CODE": "text",
-    "BREEDING_CATEGORY": "text",
-    "BEHAVIOR_CODE": "text",
-    "AGE_SEX": "text",
-    "COUNTRY": "text",
-    "COUNTRY_CODE": "text",
-    "STATE": "text",
-    "STATE_CODE": "text",
-    "COUNTY": "text",
-    "COUNTY_CODE": "text",
-    "IBA_CODE": "text",
-    "BCR_CODE": "integer",
-    "USFWS_CODE": "text",
-    "ATLAS_BLOCK": "text",
-    "LOCALITY": "text",
-    "LOCALITY_ID": "text",
-    "LOCALITY_TYPE": "text",
-    "LATITUDE": "real",
-    "LONGITUDE": "real",
-    "OBSERVATION_DATE": "text",
-    "TIME_OBSERVATIONS_STARTED": "text",
-    "OBSERVER_ID": "text",
-    "SAMPLING_EVENT_IDENTIFIER": "text",
-    "PROTOCOL_TYPE": "text",
-    "PROTOCOL_CODE": "text",
-    "PROJECT_CODE": "text",
-    "DURATION_MINUTES": "integer",
-    "EFFORT_DISTANCE_KM": "real",
-    "EFFORT_AREA_HA": "text",
-    "NUMBER_OBSERVERS": "integer",
-    "ALL_SPECIES_REPORTED": "integer",
-    "GROUP_IDENTIFIER": "text",
-    "HAS_MEDIA": "integer",
-    "APPROVED": "integer",
-    "REVIEWED": "integer",
-    "REASON": "text",
-    "TRIP_COMMENTS": "text",
-    "SPECIES_COMMENTS": "text",
+
+COUNTRY_HEADINGS = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code')
+BCRCODE_HEADINGS = ('bcr_code',)
+IBACODE_HEADINGS = ('iba_code',)
+SPECIES_HEADINGS = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name')
+OBSERVER_HEADINGS = ('observer_id', )
+BREEDING_HEADINGS = ('breeding_code', 'breeding_category', 'behavior_code')
+LOCALITY_HEADINGS = ('locality', 'locality_id', 'locality_type')
+PROTOCOL_HEADINGS = ('protocol_type', 'protocol_code', 'project_code')
+
+# Note: the order of headings in this tuple must be the same as the order of foreign keys in the observations table.
+# In python > 3.7 tracking the order separately is unnecessary, but we handle it anyway
+TABLE_ORDER = ('countries',
+    'bcr_codes',
+    'iba_codes',
+    'species',
+    'observers',
+    'breeding',
+    'localities',
+    'protocols')
+SEPARATE_TABLES = {
+    'countries': COUNTRY_HEADINGS,
+    'bcr_codes': BCRCODE_HEADINGS,
+    'iba_codes': IBACODE_HEADINGS,
+    'species': SPECIES_HEADINGS,
+    'observers': OBSERVER_HEADINGS,
+    'breeding': BREEDING_HEADINGS,
+    'localities': LOCALITY_HEADINGS,
+    'protocols': PROTOCOL_HEADINGS
 }
 
+heading_indices = {
+    k: tuple(HEADINGS.index(heading) for heading in table) for k, table in SEPARATE_TABLES.items()
+}
 
-COUNTRY_TABLE_Q = """CREATE TABLE IF NOT EXISTS countries (
-    id: integer PRIMARY KEY,
-    name: text,
-    code: text,
-    UNIQUE(name, code)
+skip_indices = {x for indices in heading_indices.values() for x in indices}
+
+# We could construct these, but since there's only a few it's better to just hardcode them
+country_query = """INSERT OR IGNORE INTO countries (country_name, country_code, state_name, state_code, county_name, county_code)
+VALUES(?, ?, ?, ?, ?, ?)"""
+
+bcr_query = """INSERT OR IGNORE INTO bcrcodes (bcr_code)
+VALUES(?)"""
+
+iba_query = """INSERT OR IGNORE INTO ibacodes (iba_code)
+VALUES(?)"""
+
+species_query = """INSERT OR IGNORE INTO species (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name)
+VALUES(?, ?, ?, ?, ?, ?)"""
+
+observer_query = """INSERT OR IGNORE INTO observers (string_id)
+VALUES(?)"""
+
+breeding_query = """INSERT OR IGNORE INTO breeding (breeding_code, breeding_category, behavior_code)
+VALUES(?, ?, ?)"""
+
+locality_query = """INSERT OR IGNORE INTO localities (locality_name, locality_code, locality_type)
+VALUES(?, ?, ?)"""
+
+protocol_query = """INSERT OR IGNORE INTO protocols (protocol_type, protocol_code, project_code)
+VALUES(?, ?, ?)"""
+
+INSERT_QUERIES = (country_query, bcr_query, iba_query, species_query, observer_query, breeding_query, locality_query, protocol_query)
+
+
+observation_query = """INSERT INTO observations
+(
+    country_id,
+    bcr_code_id,
+    iba_code_id,
+    species_id,
+    observer_id,
+    breeding_id,
+    locality_id,
+    protocol_id,
+    global_unique_identifier,
+    last_edited_date,
+    observation_count,
+    age_sex,
+    usfws_code,
+    atlas_block,
+    latitude,
+    longitude,
+    observation_date,
+    observations_started,
+    sampling_event_identifier,
+    duration_minutes,
+    effort_distance,
+    effort_area,
+    number_observers,
+    all_species_reported,
+    group_identifier,
+    has_media,
+    approved,
+    reviewed,
+    reason,
+    trip_comments,
+    species_comments
+)
+VALUES
+(
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?
 );"""
-STATE_TABLE_Q = "CREATE TABLE IF NOT EXISTS states (id: integer PRIMARY KEY, name: text, code: text, country_id integer, FOREIGN KEY (country_id) REFERENCES countries(id), UNIQUE(name, code));"
-COUNTY_TABLE_Q = "CREATE TABLE IF NOT EXISTS states (id: integer PRIMARY KEY, name: text, code: text, state_id integer, FOREIGN KEY (state_id) REFERENCES states(id), UNIQUE(name, code));"
-BCR_CODE_TABLE_Q = "CREATE TABLE IF NOT EXISTS bcrcodes (code: integer PRIMARY KEY, name: text);"
-IBA_CODE_TABLE_Q = "CREATE TABLE IF NOT EXISTS ibacodes (code: integer PRIMARY KEY, name: text);"
-SPECIES_TABLE_Q = "CREATE TABLE IF NOT EXISTS species (id: integer PRIMARY KEY, common_name: text, scientific_name: text, subspecies_common_name: text, subspecies_scientific_name: text);"
 
 
-def build_db(input_path: Path, output_path: Optional[Path] = None):
+def create_tables(db):
+    sql = (Path(__file__).parent / 'create_tables.sql').open().read()
+    db.executescript(sql)
+
+
+def add_line(line, db):
+    """Unoptimized line insert"""
+    ref_ids = []
+    for (_, indices), insert_query in zip(heading_indices.items(), INSERT_QUERIES):
+        values = tuple(line[x] for x in indices)
+        x = db.execute(insert_query, values)
+        ref_ids.append(x.lastrowid)
+    ref_ids.extend(line[i] for i in range(len(line)) if i not in skip_indices)
+
+    x = db.execute(observation_query, ref_ids)
+
+
+def build_db(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None):
     """Build a sqlite database from an input file
 
     Args:
@@ -135,16 +228,25 @@ def build_db(input_path: Path, output_path: Optional[Path] = None):
         output_path = (config.DATA_HOME / input_path.stem).with_suffix(".sqlite")
 
     db = sqlite3.connect(":memory:")
-    columns = ",\n\t".join((f"{c} {t}" for c, t in HEADING_TYPES.items()))
-    query = f"CREATE TABLE IF NOT EXISTS ebird ({columns});"
-    db.execute(query)
-    parameters = ("?" for _ in HEADING)
-    parameters_str = ", ".join(parameters)
-    heading_str = ", ".join(HEADING)
-    insert_query = f"INSERT INTO ebird ({heading_str}) VALUES ({parameters_str});"
+    create_tables(db)
+
+    # columns = ",\n\t".join((f"{c} {t}" for c, t in HEADING_TYPES.items()))
+    # query = f"CREATE TABLE IF NOT EXISTS ebird ({columns});"
+    # db.execute(query)
+    # parameters = ("?" for _ in HEADING)
+    # parameters_str = ", ".join(parameters)
+    # heading_str = ", ".join(HEADING)
+    # insert_query = f"INSERT INTO ebird ({heading_str}) VALUES ({parameters_str});"
     with open(input_path) as input_f:
         reader = csv.reader(input_f, delimiter="\t")
         # Skip the header line
-        reader.__next__()
-        for line in reader:
-            db.execute(insert_query, line)
+        header = reader.__next__()
+        import pdb
+        pdb.set_trace()
+        for i, line in enumerate(reader):
+            add_line(line, db)
+
+            if i > max_lines:
+                # TODO: store
+                break
+            # db.execute(insert_query, line)
