@@ -6,8 +6,9 @@ and makes querying it much faster.
 import sqlite3
 import csv
 
+from collections import defaultdict
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from aukpy import config
 
@@ -205,16 +206,29 @@ def create_tables(db):
     db.executescript(sql)
 
 
-def add_line(line, db):
-    """Unoptimized line insert"""
+def add_line(line: List[str], db: sqlite3.Connection, cache: Dict[str, Dict[Tuple[str, ...], int]]):
+    """Unoptimized line insert
+
+    Args:
+        line (List[str]):                               The split line being inserted
+        db (sqlite3.Connection):                        The database connection
+        cache (Dict[str, Dict[Tuple[str, ...], int]]):  A cache of all the subtable indices. Since all the subtables are relatively small,  this is faster than actually checking the database.
+    """
     ref_ids = []
-    for (_, indices), insert_query in zip(heading_indices.items(), INSERT_QUERIES):
+    for (t_name, indices), insert_query in zip(heading_indices.items(), INSERT_QUERIES):
         values = tuple(line[x] for x in indices)
-        x = db.execute(insert_query, values)
-        ref_ids.append(x.lastrowid)
-    ref_ids.extend(line[i] for i in range(len(line)) if i not in skip_indices)
+        try:
+            ref_id = cache[t_name][values]
+            ref_ids.append(ref_id)
+        except KeyError:
+            x = db.execute(insert_query, values)
+            ref_ids.append(x.lastrowid)
+            cache[t_name][values] = x.lastrowid
+    a = [line[i] for i in range(len(line)) if i not in skip_indices]
+    ref_ids.extend(a)
 
     x = db.execute(observation_query, ref_ids)
+    return cache
 
 
 def build_db(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None):
@@ -230,21 +244,15 @@ def build_db(input_path: Path, output_path: Optional[Path] = None, max_lines: in
     db = sqlite3.connect(":memory:")
     create_tables(db)
 
-    # columns = ",\n\t".join((f"{c} {t}" for c, t in HEADING_TYPES.items()))
-    # query = f"CREATE TABLE IF NOT EXISTS ebird ({columns});"
-    # db.execute(query)
-    # parameters = ("?" for _ in HEADING)
-    # parameters_str = ", ".join(parameters)
-    # heading_str = ", ".join(HEADING)
-    # insert_query = f"INSERT INTO ebird ({heading_str}) VALUES ({parameters_str});"
+    cache = defaultdict(dict)
     with open(input_path) as input_f:
         reader = csv.reader(input_f, delimiter="\t")
         # Skip the header line
-        header = reader.__next__()
+        header = tuple(x.replace(' ', '_').lower() for x in reader.__next__())
         import pdb
         pdb.set_trace()
         for i, line in enumerate(reader):
-            add_line(line, db)
+            cache = add_line(line, db, cache)
 
             if i > max_lines:
                 # TODO: store
