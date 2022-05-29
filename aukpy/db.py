@@ -3,12 +3,14 @@ The full dataset is distributed as a ~400GB csv file, much of which is redundant
 We store it in a fully normalized sqlite file instead, which reduces the size of the data
 and makes querying it much faster.
 """
+import numpy as np
+import pandas as pd
 import sqlite3
 import csv
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 from aukpy import config
 
@@ -20,10 +22,12 @@ HEADINGS = tuple(
         "LAST EDITED DATE",
         "TAXONOMIC ORDER",
         "CATEGORY",
+        'TAXON CONCEPT ID',
         "COMMON NAME",
         "SCIENTIFIC NAME",
         "SUBSPECIES COMMON NAME",
         "SUBSPECIES SCIENTIFIC NAME",
+        'EXOTIC CODE',
         "OBSERVATION COUNT",
         "BREEDING CODE",
         "BREEDING CATEGORY",
@@ -67,79 +71,47 @@ HEADINGS = tuple(
 )
 
 
-COUNTRY_HEADINGS = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code')
-BCRCODE_HEADINGS = ('bcr_code',)
-IBACODE_HEADINGS = ('iba_code',)
-SPECIES_HEADINGS = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name')
-OBSERVER_HEADINGS = ('observer_id', )
-BREEDING_HEADINGS = ('breeding_code', 'breeding_category', 'behavior_code')
-LOCALITY_HEADINGS = ('locality', 'locality_id', 'locality_type')
-PROTOCOL_HEADINGS = ('protocol_type', 'protocol_code', 'project_code')
-
-# Note: the order of headings in this tuple must be the same as the order of foreign keys in the observations table.
-# In python > 3.7 tracking the order separately is unnecessary, but we handle it anyway
-TABLE_ORDER = ('countries',
-    'bcr_codes',
-    'iba_codes',
-    'species',
-    'observers',
-    'breeding',
-    'localities',
-    'protocols')
-SEPARATE_TABLES = {
-    'countries': COUNTRY_HEADINGS,
-    'bcr_codes': BCRCODE_HEADINGS,
-    'iba_codes': IBACODE_HEADINGS,
-    'species': SPECIES_HEADINGS,
-    'observers': OBSERVER_HEADINGS,
-    'breeding': BREEDING_HEADINGS,
-    'localities': LOCALITY_HEADINGS,
-    'protocols': PROTOCOL_HEADINGS
-}
-
-heading_indices = {
-    k: tuple(HEADINGS.index(heading) for heading in table) for k, table in SEPARATE_TABLES.items()
-}
-
-skip_indices = {x for indices in heading_indices.values() for x in indices}
+# LOCATION_HEADINGS = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type')
+# BCRCODE_HEADINGS = ('bcr_code',)
+# IBACODE_HEADINGS = ('iba_code',)
+# SPECIES_HEADINGS = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name')
+# OBSERVER_HEADINGS = ('observer_id', )
+# BREEDING_HEADINGS = ('breeding_code', 'breeding_category', 'behavior_code')
+# PROTOCOL_HEADINGS = ('protocol_type', 'protocol_code', 'project_code')
 
 # We could construct these, but since there's only a few it's better to just hardcode them
-country_query = """INSERT OR IGNORE INTO countries (country_name, country_code, state_name, state_code, county_name, county_code)
-VALUES(?, ?, ?, ?, ?, ?)"""
+location_query = """INSERT OR IGNORE INTO location_data ('country_name', 'country_code', 'state_name', 'state_code', 'county_name', 'county_code', 'locality', 'locality_id', 'locality_type')
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-bcr_query = """INSERT OR IGNORE INTO bcrcodes (bcr_code)
+bcr_query = """INSERT OR IGNORE INTO bcrcode (bcr_code)
 VALUES(?)"""
 
-iba_query = """INSERT OR IGNORE INTO ibacodes (iba_code)
+iba_query = """INSERT OR IGNORE INTO ibacode (iba_code)
 VALUES(?)"""
 
-species_query = """INSERT OR IGNORE INTO species (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name)
-VALUES(?, ?, ?, ?, ?, ?)"""
+species_query = """INSERT OR IGNORE INTO species (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
+VALUES(?, ?, ?, ?, ?, ?, ?)"""
 
-observer_query = """INSERT OR IGNORE INTO observers (string_id)
+observer_query = """INSERT OR IGNORE INTO observer (string_id)
 VALUES(?)"""
 
 breeding_query = """INSERT OR IGNORE INTO breeding (breeding_code, breeding_category, behavior_code)
 VALUES(?, ?, ?)"""
 
-locality_query = """INSERT OR IGNORE INTO localities (locality_name, locality_code, locality_type)
+protocol_query = """INSERT OR IGNORE INTO protocol (protocol_type, protocol_code, project_code)
 VALUES(?, ?, ?)"""
 
-protocol_query = """INSERT OR IGNORE INTO protocols (protocol_type, protocol_code, project_code)
-VALUES(?, ?, ?)"""
-
-INSERT_QUERIES = (country_query, bcr_query, iba_query, species_query, observer_query, breeding_query, locality_query, protocol_query)
+# INSERT_QUERIES = (location_query, bcr_query, iba_query, species_query, observer_query, breeding_query, locality_query, protocol_query)
 
 
 observation_query = """INSERT INTO observations
 (
-    country_id,
-    bcr_code_id,
-    iba_code_id,
+    location_data_id,
+    bcrcode_id,
+    ibacode_id,
     species_id,
     observer_id,
     breeding_id,
-    locality_id,
     protocol_id,
     global_unique_identifier,
     last_edited_date,
@@ -163,7 +135,8 @@ observation_query = """INSERT INTO observations
     reviewed,
     reason,
     trip_comments,
-    species_comments
+    species_comments,
+    exotic_code
 )
 VALUES
 (
@@ -197,7 +170,7 @@ VALUES
     ?,
     ?,
     ?,
-    ?
+    ?,
 );"""
 
 
@@ -206,55 +179,150 @@ def create_tables(db):
     db.executescript(sql)
 
 
-def add_line(line: List[str], db: sqlite3.Connection, cache: Dict[str, Dict[Tuple[str, ...], int]]):
-    """Unoptimized line insert
+class TableWrapper:
+    table_name: str
+    columns: Tuple[str, ...]
+    insert_query: str
 
-    Args:
-        line (List[str]):                               The split line being inserted
-        db (sqlite3.Connection):                        The database connection
-        cache (Dict[str, Dict[Tuple[str, ...], int]]):  A cache of all the subtable indices. Since all the subtables are relatively small,  this is faster than actually checking the database.
-    """
-    ref_ids = []
-    for (t_name, indices), insert_query in zip(heading_indices.items(), INSERT_QUERIES):
-        values = tuple(line[x] for x in indices)
-        try:
-            ref_id = cache[t_name][values]
-            ref_ids.append(ref_id)
-        except KeyError:
-            x = db.execute(insert_query, values)
-            ref_ids.append(x.lastrowid)
-            cache[t_name][values] = x.lastrowid
-    a = [line[i] for i in range(len(line)) if i not in skip_indices]
-    ref_ids.extend(a)
+    @classmethod
+    def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
+        return df
 
-    x = db.execute(observation_query, ref_ids)
-    return cache
+    @classmethod
+    def values_processing(cls, values: List[Any]) -> List[Any]:
+        return values
+
+    @classmethod
+    def insert(cls, df: pd.DataFrame, db: sqlite3.Connection) -> pd.DataFrame:
+        print(f'\nStoring {cls.table_name}')
+        # Table specific preprocessing
+        sub_frame = cls.df_processing(df.loc[:, cls.columns])
+        max_id = db.execute('SELECT MAX(id) FROM {}'.format(cls.table_name)).fetchone()[0]
+        max_id = max_id if max_id is not None else 0
+        unique_values = sub_frame.groupby(sub_frame.columns.tolist()).groups
+
+        # Table specific values processing (needed for IBA, BCR)
+        values = cls.values_processing([x for x in unique_values.keys()])
+
+        db.executemany(cls.insert_query, values)
+        group_ids = {k: v for k, v in zip(unique_values.keys(), range(max_id + 1, max_id + len(values) + 1))}
+        df[f'{cls.table_name}_id'] = None
+        for group, group_id in group_ids.items():
+            df.loc[unique_values[group], f'{cls.table_name}_id'] = group_id
+        return df
 
 
-def build_db(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None):
-    """Build a sqlite database from an input file
+class LocationWrapper(TableWrapper):
+    table_name = 'location_data'
+    columns = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type')
+    insert_query = location_query
 
-    Args:
-        input_path: Path to the input dataset
-        output_path: Desired path for the database. Defaults to {DATA_FOLDER}/{input_path.stem}.sqlite
-    """
-    if output_path is None:
-        output_path = (config.DATA_HOME / input_path.stem).with_suffix(".sqlite")
 
-    db = sqlite3.connect(":memory:")
+class BCRCodes(TableWrapper):
+    table_name = 'bcrcode'
+    columns = ('bcr_code', )
+    insert_query = bcr_query
+
+    @classmethod
+    def values_processing(cls, values: List[Any]) -> List[Tuple[int]]:
+        return [(int(x), ) for x in values]
+
+
+class IBACodes(TableWrapper):
+    table_name = 'ibacode'
+    columns = ('iba_code', )
+    insert_query = iba_query
+
+    @classmethod
+    def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
+        return [(x, ) for x in values]
+
+
+class SpeciesWrapper(TableWrapper):
+    table_name = 'species'
+    columns = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name', 'taxon_concept_id')
+    insert_query = species_query
+
+
+class ObserverWrapper(TableWrapper):
+    table_name = 'observer'
+    columns = ('observer_id', )
+    insert_query = observer_query
+
+    @classmethod
+    def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
+        return [(x, ) for x in values]
+
+class BreedingWrapper(TableWrapper):
+    table_name = 'breeding'
+    columns = ('breeding_code', 'breeding_category', 'behavior_code')
+    insert_query = breeding_query
+
+
+class ProtocolWrapper(TableWrapper):
+    table_name = 'protocol'
+    columns = ('protocol_type', 'protocol_code', 'project_code')
+    insert_query = protocol_query
+
+ObservationColumns = (
+    'location_data_id',
+    'bcrcode_id',
+    'ibacode_id',
+    'species_id',
+    'observer_id',
+    'breeding_id',
+    'protocol_id',
+    'global_unique_identifier',
+    'last_edited_date',
+    'observation_count',
+    'age_sex',
+    'usfws_code',
+    'atlas_block',
+    'latitude',
+    'longitude',
+    'observation_date',
+    'observations_started',
+    'sampling_event_identifier',
+    'duration_minutes',
+    'effort_distance',
+    'effort_area',
+    'number_observers',
+    'all_species_reported',
+    'group_identifier',
+    'has_media',
+    'approved',
+    'reviewed',
+    'reason',
+    'trip_comments',
+    'species_comments',
+    'exotic_code'
+)
+WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, ObserverWrapper, BreedingWrapper, ProtocolWrapper)
+
+
+def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None) -> sqlite3.Connection:
+    db = sqlite3.connect(':memory:')
     create_tables(db)
+    # TODO: Max lines and seek
+    df = pd.read_csv(input_path, sep="\t")
+    renames = {x: x.lower().replace(' ', '_') for x in df.columns}
+    df.rename(columns=renames, inplace=True)
 
-    cache = defaultdict(dict)
-    with open(input_path) as input_f:
-        reader = csv.reader(input_f, delimiter="\t")
-        # Skip the header line
-        header = tuple(x.replace(' ', '_').lower() for x in reader.__next__())
-        import pdb
-        pdb.set_trace()
-        for i, line in enumerate(reader):
-            cache = add_line(line, db, cache)
+    # Drop any extra columns
+    for col in df.columns:
+        if col not in HEADINGS:
+            df.drop(col, axis=1, inplace=True)
 
-            if i > max_lines:
-                # TODO: store
-                break
-            # db.execute(insert_query, line)
+    # Store subtables
+    for wrapper in WRAPPERS:
+        df = wrapper.insert(df, db)
+
+    # Store main observations table
+    used_columns = [y for x in WRAPPERS for y in x.columns]
+    just_obs = df.drop(used_columns, axis=1)
+    import pdb
+    pdb.set_trace()
+
+    raise NotImplementedError
+
+

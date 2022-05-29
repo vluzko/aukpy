@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS countries (
+CREATE TABLE IF NOT EXISTS location_data (
     id integer PRIMARY KEY,
     country_name text NOT NULL,
     country_code text NOT NULL,
@@ -6,12 +6,15 @@ CREATE TABLE IF NOT EXISTS countries (
     state_code text,
     county_name text,
     county_code text,
-    UNIQUE(country_name, country_code, state_name, state_code, county_name, county_code)
+    locality,
+    locality_id,
+    locality_type,
+    UNIQUE(country_name, country_code, state_name, state_code, county_name, county_code, locality, locality_id, locality_type)
 );
 
-CREATE TABLE IF NOT EXISTS bcrcodes (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
+CREATE TABLE IF NOT EXISTS bcrcode (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
 
-CREATE TABLE IF NOT EXISTS ibacodes (id integer PRIMARY KEY, iba_code text, UNIQUE(iba_code));
+CREATE TABLE IF NOT EXISTS ibacode (id integer PRIMARY KEY, iba_code text, UNIQUE(iba_code));
 
 CREATE TABLE IF NOT EXISTS species (
     id integer PRIMARY KEY,
@@ -21,10 +24,11 @@ CREATE TABLE IF NOT EXISTS species (
     scientific_name text NOT NULL,
     subspecies_common_name text,
     subspecies_scientific_name text,
-    UNIQUE(taxonomic_order, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name)
+    taxon_concept_id text,
+    UNIQUE(taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
 );
 
-CREATE TABLE IF NOT EXISTS observers (
+CREATE TABLE IF NOT EXISTS observer (
     id integer PRIMARY KEY,
     string_id text NOT NULL,
     UNIQUE(string_id)
@@ -38,15 +42,16 @@ CREATE TABLE IF NOT EXISTS breeding (
     UNIQUE(breeding_code, breeding_category, behavior_code)
 );
 
-CREATE TABLE IF NOT EXISTS localities (
-    id integer PRIMARY KEY,
-    locality_name text,
-    locality_code text,
-    locality_type text,
-    UNIQUE(locality_name)
-);
+-- Deprecated for now
+-- CREATE TABLE IF NOT EXISTS localities (
+--     id integer PRIMARY KEY,
+--     locality_name text,
+--     locality_code text,
+--     locality_type text,
+--     UNIQUE(locality_name)
+-- );
 
-CREATE TABLE IF NOT EXISTS protocols (
+CREATE TABLE IF NOT EXISTS protocol (
     id integer PRIMARY KEY,
     protocol_type text,
     protocol_code text,
@@ -55,15 +60,14 @@ CREATE TABLE IF NOT EXISTS protocols (
 );
 
 CREATE TABLE IF NOT EXISTS observations (
-    country_id integer,
+    location_data_id integer,
     bcr_code_id integer,
     iba_code_id integer,
     species_id integer NOT NULL,
-    observer_id integer,
+    observer_id integer NOT NULL,
     breeding_id integer,
-    locality_id integer,
     protocol_id integer,
-    global_unique_identifier text,
+    global_unique_identifier text NOT NULL,
     last_edited_date text,
     observation_count integer,
     age_sex text,
@@ -76,7 +80,7 @@ CREATE TABLE IF NOT EXISTS observations (
     sampling_event_identifier text,
     duration_minutes integer,
     effort_distance float,
-    effort_area float,
+    effort_area_ha float,
     number_observers integer,
     all_species_reported integer,
     group_identifier text,
@@ -86,12 +90,12 @@ CREATE TABLE IF NOT EXISTS observations (
     reason text,
     trip_comments text,
     species_comments text,
+    exotic_code text,
     FOREIGN KEY (species_id) REFERENCES species(id),
-    FOREIGN KEY (bcr_code_id) REFERENCES bcrcodes(id),
-    FOREIGN KEY (iba_code_id) REFERENCES ibacodes(id),
+    FOREIGN KEY (bcr_code_id) REFERENCES bcrcode(id),
+    FOREIGN KEY (iba_code_id) REFERENCES ibacode(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
-    FOREIGN KEY (country_id) REFERENCES countries(id),
-    FOREIGN KEY (locality_id) REFERENCES localities(id),
-    FOREIGN KEY (observer_id) REFERENCES observers(id)
-    FOREIGN KEY (protocol_id) REFERENCES protocols(id)
+    FOREIGN KEY (location_data_id) REFERENCES location_data(id),
+    FOREIGN KEY (observer_id) REFERENCES observer(id)
+    FOREIGN KEY (protocol_id) REFERENCES protocol(id)
 );
