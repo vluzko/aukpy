@@ -230,7 +230,7 @@ class ObservationWrapper(TableWrapper):
         'exotic_code'
     )
 
-    insert_query = """INSERT INTO observations
+    insert_query = """INSERT INTO observation
     (
         {}
     )
@@ -266,17 +266,31 @@ class ObservationWrapper(TableWrapper):
         ?,
         ?,
         ?,
-        ?,
+        ?
     );""".format(',\n'.join(columns))
-WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, ObserverWrapper, BreedingWrapper, ProtocolWrapper)
+WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, BreedingWrapper, ProtocolWrapper)
 
 
 def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None) -> sqlite3.Connection:
-    db = sqlite3.connect(':memory:')
+    """Build a sqlite database using pandas to parse the CSV
+
+    Args:
+        input_path (Path):                      Path to the CSV of observations
+        output_path (Optional[Path], optional): Location to store the database. DB will be built in memory if None Defaults to None.
+        max_lines (int, optional):              The maximum number of lines of the CSV to read. Defaults to 1000000.
+        seek_to (Optional[int], optional):      The position in the CSV to start reading lines at. Defaults to None.
+
+    Returns:
+        sqlite3.Connection: A connection to the finished database.
+    """
+    if output_path is None:
+        db = sqlite3.connect(':memory:')
+    else:
+        db = sqlite3.connect(str(output_path.absolute()))
     create_tables(db)
     # TODO: Max lines and seek
     df = pd.read_csv(input_path, sep="\t")
-    renames = {x: x.lower().replace(' ', '_') for x in df.columns}
+    renames = {x: x.lower().replace(' ', '_').replace('/', '_') for x in df.columns}
     df.rename(columns=renames, inplace=True)
 
     # Drop any extra columns
@@ -292,9 +306,5 @@ def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_li
     used_columns = [y for x in WRAPPERS for y in x.columns]
     just_obs = df.drop(used_columns, axis=1)
     ObservationWrapper.insert(just_obs, db)
-    import pdb
-    pdb.set_trace()
 
-    raise NotImplementedError
-
-
+    return db

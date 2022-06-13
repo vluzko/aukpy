@@ -59,10 +59,11 @@ CREATE TABLE IF NOT EXISTS protocol (
     UNIQUE(protocol_type, protocol_code, project_code)
 );
 
-CREATE TABLE IF NOT EXISTS observations (
+CREATE TABLE IF NOT EXISTS observation (
+    id integer PRIMARY KEY,
     location_data_id integer,
-    bcr_code_id integer,
-    iba_code_id integer,
+    bcrcode_id integer,
+    ibacode_id integer,
     species_id integer NOT NULL,
     observer_id integer NOT NULL,
     breeding_id integer,
@@ -92,8 +93,8 @@ CREATE TABLE IF NOT EXISTS observations (
     species_comments text,
     exotic_code text,
     FOREIGN KEY (species_id) REFERENCES species(id),
-    FOREIGN KEY (bcr_code_id) REFERENCES bcrcode(id),
-    FOREIGN KEY (iba_code_id) REFERENCES ibacode(id),
+    FOREIGN KEY (bcrcode_id) REFERENCES bcrcode(id),
+    FOREIGN KEY (ibacode_id) REFERENCES ibacode(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
     FOREIGN KEY (location_data_id) REFERENCES location_data(id),
     FOREIGN KEY (protocol_id) REFERENCES protocol(id)
