@@ -28,11 +28,11 @@ CREATE TABLE IF NOT EXISTS species (
     UNIQUE(taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
 );
 
-CREATE TABLE IF NOT EXISTS observer (
-    id integer PRIMARY KEY,
-    string_id text NOT NULL,
-    UNIQUE(string_id)
-);
+-- CREATE TABLE IF NOT EXISTS observer (
+--     id integer PRIMARY KEY,
+--     string_id text NOT NULL,
+--     UNIQUE(string_id)
+-- );
 
 CREATE TABLE IF NOT EXISTS breeding (
     id integer PRIMARY KEY,
@@ -76,10 +76,10 @@ CREATE TABLE IF NOT EXISTS observations (
     latitude float,
     longitude float,
     observation_date text,
-    observations_started text,
+    time_observations_started text,
     sampling_event_identifier text,
     duration_minutes integer,
-    effort_distance float,
+    effort_distance_km float,
     effort_area_ha float,
     number_observers integer,
     all_species_reported integer,
@@ -96,6 +96,5 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY (iba_code_id) REFERENCES ibacode(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
     FOREIGN KEY (location_data_id) REFERENCES location_data(id),
-    FOREIGN KEY (observer_id) REFERENCES observer(id)
     FOREIGN KEY (protocol_id) REFERENCES protocol(id)
 );

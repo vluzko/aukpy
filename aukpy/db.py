@@ -101,78 +101,6 @@ VALUES(?, ?, ?)"""
 protocol_query = """INSERT OR IGNORE INTO protocol (protocol_type, protocol_code, project_code)
 VALUES(?, ?, ?)"""
 
-# INSERT_QUERIES = (location_query, bcr_query, iba_query, species_query, observer_query, breeding_query, locality_query, protocol_query)
-
-
-observation_query = """INSERT INTO observations
-(
-    location_data_id,
-    bcrcode_id,
-    ibacode_id,
-    species_id,
-    observer_id,
-    breeding_id,
-    protocol_id,
-    global_unique_identifier,
-    last_edited_date,
-    observation_count,
-    age_sex,
-    usfws_code,
-    atlas_block,
-    latitude,
-    longitude,
-    observation_date,
-    observations_started,
-    sampling_event_identifier,
-    duration_minutes,
-    effort_distance,
-    effort_area,
-    number_observers,
-    all_species_reported,
-    group_identifier,
-    has_media,
-    approved,
-    reviewed,
-    reason,
-    trip_comments,
-    species_comments,
-    exotic_code
-)
-VALUES
-(
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
-);"""
-
 
 def create_tables(db):
     sql = (Path(__file__).parent / 'create_tables.sql').open().read()
@@ -199,6 +127,7 @@ class TableWrapper:
         sub_frame = cls.df_processing(df.loc[:, cls.columns])
         max_id = db.execute('SELECT MAX(id) FROM {}'.format(cls.table_name)).fetchone()[0]
         max_id = max_id if max_id is not None else 0
+        # TODO: Optimization: Sort and drop_duplicates is probably faster.
         unique_values = sub_frame.groupby(sub_frame.columns.tolist()).groups
 
         # Table specific values processing (needed for IBA, BCR)
@@ -244,14 +173,14 @@ class SpeciesWrapper(TableWrapper):
     insert_query = species_query
 
 
-class ObserverWrapper(TableWrapper):
-    table_name = 'observer'
-    columns = ('observer_id', )
-    insert_query = observer_query
+# class ObserverWrapper(TableWrapper):
+#     table_name = 'observer'
+#     columns = ('observer_id', )
+#     insert_query = observer_query
 
-    @classmethod
-    def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
-        return [(x, ) for x in values]
+#     @classmethod
+#     def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
+#         return [(x, ) for x in values]
 
 class BreedingWrapper(TableWrapper):
     table_name = 'breeding'
@@ -264,39 +193,81 @@ class ProtocolWrapper(TableWrapper):
     columns = ('protocol_type', 'protocol_code', 'project_code')
     insert_query = protocol_query
 
-ObservationColumns = (
-    'location_data_id',
-    'bcrcode_id',
-    'ibacode_id',
-    'species_id',
-    'observer_id',
-    'breeding_id',
-    'protocol_id',
-    'global_unique_identifier',
-    'last_edited_date',
-    'observation_count',
-    'age_sex',
-    'usfws_code',
-    'atlas_block',
-    'latitude',
-    'longitude',
-    'observation_date',
-    'observations_started',
-    'sampling_event_identifier',
-    'duration_minutes',
-    'effort_distance',
-    'effort_area',
-    'number_observers',
-    'all_species_reported',
-    'group_identifier',
-    'has_media',
-    'approved',
-    'reviewed',
-    'reason',
-    'trip_comments',
-    'species_comments',
-    'exotic_code'
-)
+
+class ObservationWrapper(TableWrapper):
+    table_name = 'observation'
+    columns = (
+        'location_data_id',
+        'bcrcode_id',
+        'ibacode_id',
+        'species_id',
+        'observer_id',
+        'breeding_id',
+        'protocol_id',
+        'global_unique_identifier',
+        'last_edited_date',
+        'observation_count',
+        'age_sex',
+        'usfws_code',
+        'atlas_block',
+        'latitude',
+        'longitude',
+        'observation_date',
+        'time_observations_started',
+        'sampling_event_identifier',
+        'duration_minutes',
+        'effort_distance_km',
+        'effort_area_ha',
+        'number_observers',
+        'all_species_reported',
+        'group_identifier',
+        'has_media',
+        'approved',
+        'reviewed',
+        'reason',
+        'trip_comments',
+        'species_comments',
+        'exotic_code'
+    )
+
+    insert_query = """INSERT INTO observations
+    (
+        {}
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+    );""".format(',\n'.join(columns))
 WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, ObserverWrapper, BreedingWrapper, ProtocolWrapper)
 
 
@@ -320,6 +291,7 @@ def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_li
     # Store main observations table
     used_columns = [y for x in WRAPPERS for y in x.columns]
     just_obs = df.drop(used_columns, axis=1)
+    ObservationWrapper.insert(just_obs, db)
     import pdb
     pdb.set_trace()
 
