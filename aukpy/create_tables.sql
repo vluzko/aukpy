@@ -6,10 +6,14 @@ CREATE TABLE IF NOT EXISTS location_data (
     state_code text,
     county_name text,
     county_code text,
-    locality,
-    locality_id,
-    locality_type,
-    UNIQUE(country_name, country_code, state_name, state_code, county_name, county_code, locality, locality_id, locality_type)
+    locality text,
+    locality_id integer,
+    locality_type text,
+    usfws_code text,
+    atlas_block text,
+    bcr_code text,
+    iba_code text,
+    UNIQUE(country_name, country_code, state_name, state_code, county_name, county_code, locality, locality_id, locality_type, usfws_code, atlas_block)
 );
 
 CREATE TABLE IF NOT EXISTS bcrcode (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
@@ -28,12 +32,6 @@ CREATE TABLE IF NOT EXISTS species (
     UNIQUE(taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
 );
 
--- CREATE TABLE IF NOT EXISTS observer (
---     id integer PRIMARY KEY,
---     string_id text NOT NULL,
---     UNIQUE(string_id)
--- );
-
 CREATE TABLE IF NOT EXISTS breeding (
     id integer PRIMARY KEY,
     breeding_code text,
@@ -41,15 +39,6 @@ CREATE TABLE IF NOT EXISTS breeding (
     behavior_code text,
     UNIQUE(breeding_code, breeding_category, behavior_code)
 );
-
--- Deprecated for now
--- CREATE TABLE IF NOT EXISTS localities (
---     id integer PRIMARY KEY,
---     locality_name text,
---     locality_code text,
---     locality_type text,
---     UNIQUE(locality_name)
--- );
 
 CREATE TABLE IF NOT EXISTS protocol (
     id integer PRIMARY KEY,
@@ -66,8 +55,8 @@ CREATE TABLE IF NOT EXISTS observer (
 
 CREATE TABLE IF NOT EXISTS sampling_event (
     id integer PRIMARY KEY,
-    sampling_event_identifier int,
-    observer_id text NOT NULL,
+    sampling_event_identifier integer,
+    observer_id integer NOT NULL,
     observation_date text,
     time_observations_started text,
     effort_distance_km float,
@@ -76,16 +65,16 @@ CREATE TABLE IF NOT EXISTS sampling_event (
     trip_comments text,
     latitude float,
     longitude float,
-    all_species_reported int,
-    number_observers int,
+    all_species_reported integer,
+    number_observers integer,
     UNIQUE(sampling_event_identifier)
 );
 
 CREATE TABLE IF NOT EXISTS observation (
     id integer PRIMARY KEY,
-    location_data_id integer,
-    bcrcode_id integer,
-    ibacode_id integer,
+    location_data_id integer NOT NULL,
+    -- bcrcode_id integer,
+    -- ibacode_id integer,
     species_id integer NOT NULL,
     breeding_id integer,
     protocol_id integer,
@@ -94,8 +83,6 @@ CREATE TABLE IF NOT EXISTS observation (
     last_edited_date text,
     observation_count integer,
     age_sex text,
-    usfws_code text,
-    atlas_block text,
     group_identifier text,
     has_media integer,
     approved integer,
@@ -105,8 +92,8 @@ CREATE TABLE IF NOT EXISTS observation (
     exotic_code text,
     FOREIGN KEY (sampling_event_id) REFERENCES sampling_event(id),
     FOREIGN KEY (species_id) REFERENCES species(id),
-    FOREIGN KEY (bcrcode_id) REFERENCES bcrcode(id),
-    FOREIGN KEY (ibacode_id) REFERENCES ibacode(id),
+    -- FOREIGN KEY (bcrcode_id) REFERENCES bcrcode(id),
+    -- FOREIGN KEY (ibacode_id) REFERENCES ibacode(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
     FOREIGN KEY (location_data_id) REFERENCES location_data(id),
     FOREIGN KEY (protocol_id) REFERENCES protocol(id)

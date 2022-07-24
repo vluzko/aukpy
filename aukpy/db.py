@@ -71,7 +71,7 @@ HEADINGS = tuple(
 )
 
 # The columns present when we load the data into a dataframe
-DF_COLUMNS = ( 'global_unique_identifier',
+DF_COLUMNS = ('global_unique_identifier',
     'last_edited_date', 'observation_count', 'age_sex', 'usfws_code',
     'atlas_block', 'latitude', 'longitude', 'observation_date',
     'time_observations_started', 'sampling_event_identifier',
@@ -87,10 +87,6 @@ DF_COLUMNS = ( 'global_unique_identifier',
     'breeding_category', 'behavior_code', 'protocol_type',
     'protocol_code', 'project_code'
 )
-
-# We could construct these, but since there's only a few it's better to just hardcode them
-location_query = """INSERT OR IGNORE INTO location_data ('country_name', 'country_code', 'state_name', 'state_code', 'county_name', 'county_code', 'locality', 'locality_id', 'locality_type')
-VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 bcr_query = """INSERT OR IGNORE INTO bcrcode (bcr_code)
 VALUES(?)"""
@@ -151,8 +147,16 @@ class TableWrapper:
 
 class LocationWrapper(TableWrapper):
     table_name = 'location_data'
-    columns = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type')
-    insert_query = location_query
+    columns = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
+    insert_query = """INSERT OR IGNORE INTO location_data
+    ('country_name', 'country_code', 'state_name', 'state_code', 'county_name', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+    @classmethod
+    def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
+        s = df['locality_id'].str[1:].astype(int)
+        df['locality_id'] = s
+        return df
 
 
 class BCRCodes(TableWrapper):
@@ -205,6 +209,9 @@ class SamplingWrapper(TableWrapper):
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
         s = df['sampling_event_identifier'].str[1:].astype(int)
         df['sampling_event_identifier'] = s
+
+        s = df['observer_id'].str[4:].astype(int)
+        df['observer_id'] = s
         return df
 
 
@@ -212,8 +219,8 @@ class ObservationWrapper(TableWrapper):
     table_name = 'observation'
     columns = (
         'location_data_id',
-        'bcrcode_id',
-        'ibacode_id',
+        # 'bcrcode_id',
+        # 'ibacode_id',
         'species_id',
         'breeding_id',
         'protocol_id',
@@ -222,8 +229,6 @@ class ObservationWrapper(TableWrapper):
         'last_edited_date',
         'observation_count',
         'age_sex',
-        'usfws_code',
-        'atlas_block',
         'group_identifier',
         'has_media',
         'approved',
@@ -254,10 +259,6 @@ class ObservationWrapper(TableWrapper):
         ?,
         ?,
         ?,
-        ?,
-        ?,
-        ?,
-        ?,
         ?
     );""".format(',\n'.join(columns))
 
@@ -271,7 +272,7 @@ class ObservationWrapper(TableWrapper):
         return df
 
 
-WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, BreedingWrapper, ProtocolWrapper, SamplingWrapper)
+WRAPPERS = (LocationWrapper, SpeciesWrapper, BreedingWrapper, ProtocolWrapper, SamplingWrapper)
 
 
 def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None) -> sqlite3.Connection:
