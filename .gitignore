@@ -5,4 +5,4 @@ __pycache__/
 *.egg-info/
 
 data/
-perf_test.py
+tmp.py

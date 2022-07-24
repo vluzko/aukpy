@@ -141,12 +141,11 @@ class TableWrapper:
 
         # Table specific values processing (needed for IBA, BCR)
         values = cls.values_processing([x for x in unique_values.keys()])
-
         db.executemany(cls.insert_query, values)
         group_ids = {k: v for k, v in zip(unique_values.keys(), range(max_id + 1, max_id + len(values) + 1))}
-        df[f'{cls.table_name}_id'] = None
-        for group, group_id in group_ids.items():
-            df.loc[unique_values[group], f'{cls.table_name}_id'] = group_id
+        idx_id_map = {idx: group_ids[k] for k, indices in unique_values.items() for idx in indices}
+        as_series = pd.Series(idx_id_map)
+        df[f'{cls.table_name}_id'] = as_series
         return df
 
 
@@ -306,5 +305,5 @@ def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_li
     used_columns = [y for x in WRAPPERS for y in x.columns]
     just_obs = df.drop(used_columns, axis=1)
     ObservationWrapper.insert(just_obs, db)
-
+    db.commit()
     return db
