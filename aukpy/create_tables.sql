@@ -59,39 +59,51 @@ CREATE TABLE IF NOT EXISTS protocol (
     UNIQUE(protocol_type, protocol_code, project_code)
 );
 
+CREATE TABLE IF NOT EXISTS observer (
+    id integer PRIMARY KEY,
+    observer_id text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sampling_event (
+    id integer PRIMARY KEY,
+    sampling_event_identifier int,
+    observer_id text NOT NULL,
+    observation_date text,
+    time_observations_started text,
+    effort_distance_km float,
+    effort_area_ha float,
+    duration_minutes integer,
+    trip_comments text,
+    latitude float,
+    longitude float,
+    all_species_reported int,
+    number_observers int,
+    UNIQUE(sampling_event_identifier)
+);
+
 CREATE TABLE IF NOT EXISTS observation (
     id integer PRIMARY KEY,
     location_data_id integer,
     bcrcode_id integer,
     ibacode_id integer,
     species_id integer NOT NULL,
-    observer_id integer NOT NULL,
     breeding_id integer,
     protocol_id integer,
-    global_unique_identifier text NOT NULL,
+    sampling_event_id integer NOT NULL,
+    global_unique_identifier int NOT NULL,
     last_edited_date text,
     observation_count integer,
     age_sex text,
     usfws_code text,
     atlas_block text,
-    latitude float,
-    longitude float,
-    observation_date text,
-    time_observations_started text,
-    sampling_event_identifier text,
-    duration_minutes integer,
-    effort_distance_km float,
-    effort_area_ha float,
-    number_observers integer,
-    all_species_reported integer,
     group_identifier text,
     has_media integer,
     approved integer,
     reviewed integer,
     reason text,
-    trip_comments text,
     species_comments text,
     exotic_code text,
+    FOREIGN KEY (sampling_event_id) REFERENCES sampling_event(id),
     FOREIGN KEY (species_id) REFERENCES species(id),
     FOREIGN KEY (bcrcode_id) REFERENCES bcrcode(id),
     FOREIGN KEY (ibacode_id) REFERENCES ibacode(id),

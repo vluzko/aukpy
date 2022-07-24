@@ -193,6 +193,21 @@ class ProtocolWrapper(TableWrapper):
     insert_query = protocol_query
 
 
+class SamplingWrapper(TableWrapper):
+    table_name = 'sampling_event'
+    columns = ('sampling_event_identifier', 'observer_id', 'effort_distance_km', 'effort_area_ha', 'duration_minutes','trip_comments', 'latitude', 'longitude', 'all_species_reported', 'number_observers')
+    insert_query = """INSERT OR IGNORE INTO sampling_event
+        (sampling_event_identifier, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, latitude, longitude, all_species_reported, number_observers)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+
+    @classmethod
+    def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
+        s = df['sampling_event_identifier'].str[1:].astype(int)
+        df['sampling_event_identifier'] = s
+        return df
+
+
 class ObservationWrapper(TableWrapper):
     table_name = 'observation'
     columns = (
@@ -200,31 +215,20 @@ class ObservationWrapper(TableWrapper):
         'bcrcode_id',
         'ibacode_id',
         'species_id',
-        'observer_id',
         'breeding_id',
         'protocol_id',
+        'sampling_event_id',
         'global_unique_identifier',
         'last_edited_date',
         'observation_count',
         'age_sex',
         'usfws_code',
         'atlas_block',
-        'latitude',
-        'longitude',
-        'observation_date',
-        'time_observations_started',
-        'sampling_event_identifier',
-        'duration_minutes',
-        'effort_distance_km',
-        'effort_area_ha',
-        'number_observers',
-        'all_species_reported',
         'group_identifier',
         'has_media',
         'approved',
         'reviewed',
         'reason',
-        'trip_comments',
         'species_comments',
         'exotic_code'
     )
@@ -254,20 +258,20 @@ class ObservationWrapper(TableWrapper):
         ?,
         ?,
         ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
         ?
     );""".format(',\n'.join(columns))
-WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, BreedingWrapper, ProtocolWrapper)
+
+    @classmethod
+    def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
+
+        # Global unique identifier
+        s = df['global_unique_identifier'].str[37:].astype(int)
+        df['global_unique_identifier'] = s
+
+        return df
+
+
+WRAPPERS = (LocationWrapper, BCRCodes, IBACodes, SpeciesWrapper, BreedingWrapper, ProtocolWrapper, SamplingWrapper)
 
 
 def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None) -> sqlite3.Connection:
