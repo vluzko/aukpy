@@ -70,14 +70,23 @@ HEADINGS = tuple(
     )
 )
 
-
-# LOCATION_HEADINGS = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type')
-# BCRCODE_HEADINGS = ('bcr_code',)
-# IBACODE_HEADINGS = ('iba_code',)
-# SPECIES_HEADINGS = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name')
-# OBSERVER_HEADINGS = ('observer_id', )
-# BREEDING_HEADINGS = ('breeding_code', 'breeding_category', 'behavior_code')
-# PROTOCOL_HEADINGS = ('protocol_type', 'protocol_code', 'project_code')
+# The columns present when we load the data into a dataframe
+DF_COLUMNS = ( 'global_unique_identifier',
+    'last_edited_date', 'observation_count', 'age_sex', 'usfws_code',
+    'atlas_block', 'latitude', 'longitude', 'observation_date',
+    'time_observations_started', 'sampling_event_identifier',
+    'duration_minutes', 'effort_distance_km', 'effort_area_ha',
+    'number_observers', 'all_species_reported', 'group_identifier',
+    'has_media', 'approved', 'reviewed', 'reason', 'trip_comments',
+    'species_comments', 'exotic_code', 'taxonomic_order', 'category',
+    'common_name', 'scientific_name', 'subspecies_common_name',
+    'subspecies_scientific_name', 'taxon_concept_id', 'country_name',
+    'country_code', 'state_name', 'state_code', 'county_name',
+    'county_code', 'locality', 'locality_id', 'locality_type',
+    'bcr_code', 'iba_code', 'breeding_code',
+    'breeding_category', 'behavior_code', 'protocol_type',
+    'protocol_code', 'project_code'
+)
 
 # We could construct these, but since there's only a few it's better to just hardcode them
 location_query = """INSERT OR IGNORE INTO location_data ('country_name', 'country_code', 'state_name', 'state_code', 'county_name', 'county_code', 'locality', 'locality_id', 'locality_type')
@@ -172,15 +181,6 @@ class SpeciesWrapper(TableWrapper):
     columns = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name', 'taxon_concept_id')
     insert_query = species_query
 
-
-# class ObserverWrapper(TableWrapper):
-#     table_name = 'observer'
-#     columns = ('observer_id', )
-#     insert_query = observer_query
-
-#     @classmethod
-#     def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
-#         return [(x, ) for x in values]
 
 class BreedingWrapper(TableWrapper):
     table_name = 'breeding'

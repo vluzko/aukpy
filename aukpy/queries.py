@@ -1,3 +1,5 @@
+from aukpy import db
+import pandas as pd
 import sqlite3
 from dataclasses import dataclass, replace
 from typing import List, Optional, Sequence, Union, Tuple, Any
@@ -197,7 +199,7 @@ class Query:
         else:
             q_filter = ''
             vals = ()
-        query = f"""SELECT * FROM
+        query = f"""SELECT {db.DF_COLUMNS} FROM
         observation
         INNER JOIN species          ON species_id = species.id
         INNER JOIN location_data    ON location_data_id = location_data.id
@@ -209,9 +211,15 @@ class Query:
         return query, vals
 
     def run(self, db_conn: sqlite3.Connection) -> List[Tuple[Any, ...]]:
+        """Execute the query, returning the raw data"""
         query, vals = self.get_query()
         cursor = db_conn.execute(query, vals)
         return cursor.fetchall()
+
+    def run_pandas(self, db_conn: sqlite3.Connection) -> pd.DataFrame:
+        """Execute the query, returning the results as a dataframe"""
+        query, vals = self.get_query()
+        return pd.read_sql_query(query, db_conn, params=vals)
 
 
 def implicit_query(f):
