@@ -1,12 +1,9 @@
 import pandas as pd
-import pytest
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from aukpy import db as auk_db, queries
 
-TEST_DATA = Path(__file__).parent / 'data'
-SMALL = TEST_DATA / 'small' / 'observations.txt'
-MEDIUM = TEST_DATA / 'medium' / 'observations.txt'
+from tests import SMALL, MEDIUM
 
 
 def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
@@ -24,7 +21,7 @@ def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
         assert (df[column] == original[column]).all()
 
 
-def test_build_small():
+def test_rebuild_small():
     with NamedTemporaryFile() as output:
         db = auk_db.build_db_pandas(SMALL, Path(output.name))
         q = queries.no_filter()
@@ -34,7 +31,7 @@ def test_build_small():
         compare_tables(df, original)
 
 
-def test_build_medium():
+def test_rebuild_medium():
     with NamedTemporaryFile() as output:
         db = auk_db.build_db_pandas(MEDIUM, Path(output.name))
         q = queries.no_filter()

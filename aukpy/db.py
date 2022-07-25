@@ -110,6 +110,9 @@ def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
     df['locality_id'] = 'L' + df['locality_id'].astype(str)
 
     df['observer_id'] = 'obsr' + df['observer_id'].astype(str)
+
+    empty = df['usfws_code'].isna()
+    df[~empty]['usfws_code'] = 'USFWS_' + df[~empty]['usfws_code'].astype(str)
     return df
 
 
@@ -156,6 +159,11 @@ class LocationWrapper(TableWrapper):
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
         s = df['locality_id'].str[1:].astype(int)
         df['locality_id'] = s
+
+        empty = df['usfws_code'].isna()
+
+        df[~empty]['usfws_code'] = df[~empty]['usfws_code'].astype(str).str[6:].astype(float)
+
         return df
 
 
@@ -195,8 +203,8 @@ class SamplingWrapper(TableWrapper):
         s = df['sampling_event_identifier'].str[1:].astype(int)
         df['sampling_event_identifier'] = s
 
-        s = df['observer_id'].str[4:].astype(int)
-        df['observer_id'] = s
+        df['observer_id'] = df['observer_id'].str[4:].astype(int)
+
         return df
 
 

@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS location_data (
     locality text,
     locality_id integer,
     locality_type text,
-    usfws_code text,
+    usfws_code integer,
     atlas_block text,
-    bcr_code float,
+    bcr_code integer,
     iba_code text,
     UNIQUE(country, country_code, state, state_code, county, county_code, locality, locality_id, locality_type, usfws_code, atlas_block)
 );
