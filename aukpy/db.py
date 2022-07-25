@@ -3,12 +3,10 @@ The full dataset is distributed as a ~400GB csv file, much of which is redundant
 We store it in a fully normalized sqlite file instead, which reduces the size of the data
 and makes querying it much faster.
 """
-import numpy as np
 import pandas as pd
+import pickle
 import sqlite3
-import csv
 
-from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
@@ -80,36 +78,39 @@ DF_COLUMNS = ('global_unique_identifier',
     'has_media', 'approved', 'reviewed', 'reason', 'trip_comments',
     'species_comments', 'exotic_code', 'taxonomic_order', 'category',
     'common_name', 'scientific_name', 'subspecies_common_name',
-    'subspecies_scientific_name', 'taxon_concept_id', 'country_name',
-    'country_code', 'state_name', 'state_code', 'county_name',
+    'subspecies_scientific_name', 'taxon_concept_id', 'country',
+    'country_code', 'state', 'state_code', 'county',
     'county_code', 'locality', 'locality_id', 'locality_type',
     'bcr_code', 'iba_code', 'breeding_code',
     'breeding_category', 'behavior_code', 'protocol_type',
-    'protocol_code', 'project_code'
+    'protocol_code', 'project_code', 'observer_id'
 )
 
-bcr_query = """INSERT OR IGNORE INTO bcrcode (bcr_code)
-VALUES(?)"""
-
-iba_query = """INSERT OR IGNORE INTO ibacode (iba_code)
-VALUES(?)"""
-
-species_query = """INSERT OR IGNORE INTO species (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
-VALUES(?, ?, ?, ?, ?, ?, ?)"""
 
 observer_query = """INSERT OR IGNORE INTO observer (string_id)
 VALUES(?)"""
-
-breeding_query = """INSERT OR IGNORE INTO breeding (breeding_code, breeding_category, behavior_code)
-VALUES(?, ?, ?)"""
-
-protocol_query = """INSERT OR IGNORE INTO protocol (protocol_type, protocol_code, project_code)
-VALUES(?, ?, ?)"""
 
 
 def create_tables(db):
     sql = (Path(__file__).parent / 'create_tables.sql').open().read()
     db.executescript(sql)
+
+
+def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
+    """Undo the data compression performed when storing the dataframe in sqlite.
+    Mostly this is just converting things back into strings
+    """
+    g_prefix = 'URN:CornellLabOfOrnithology:EBIRD:OBS'
+    df['global_unique_identifier']  = g_prefix + df['global_unique_identifier'].astype(str)
+
+    df['observation_count'] = df['observation_count'].astype(str)
+
+    df['sampling_event_identifier'] = 'S' + df['sampling_event_identifier'].astype(str)
+
+    df['locality_id'] = 'L' + df['locality_id'].astype(str)
+
+    df['observer_id'] = 'obsr' + df['observer_id'].astype(str)
+    return df
 
 
 class TableWrapper:
@@ -127,7 +128,6 @@ class TableWrapper:
 
     @classmethod
     def insert(cls, df: pd.DataFrame, db: sqlite3.Connection) -> pd.DataFrame:
-        print(f'\nStoring {cls.table_name}')
         # Table specific preprocessing
         sub_frame = cls.df_processing(df.loc[:, cls.columns])
         max_id = db.execute('SELECT MAX(id) FROM {}'.format(cls.table_name)).fetchone()[0]
@@ -149,7 +149,7 @@ class LocationWrapper(TableWrapper):
     table_name = 'location_data'
     columns = ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
     insert_query = """INSERT OR IGNORE INTO location_data
-    ('country_name', 'country_code', 'state_name', 'state_code', 'county_name', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
+    ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
     @classmethod
@@ -159,50 +159,35 @@ class LocationWrapper(TableWrapper):
         return df
 
 
-class BCRCodes(TableWrapper):
-    table_name = 'bcrcode'
-    columns = ('bcr_code', )
-    insert_query = bcr_query
-
-    @classmethod
-    def values_processing(cls, values: List[Any]) -> List[Tuple[int]]:
-        return [(int(x), ) for x in values]
-
-
-class IBACodes(TableWrapper):
-    table_name = 'ibacode'
-    columns = ('iba_code', )
-    insert_query = iba_query
-
-    @classmethod
-    def values_processing(cls, values: List[str]) -> List[Tuple[str]]:
-        return [(x, ) for x in values]
-
-
 class SpeciesWrapper(TableWrapper):
     table_name = 'species'
     columns = ('taxonomic_order', 'category', 'common_name', 'scientific_name', 'subspecies_common_name', 'subspecies_scientific_name', 'taxon_concept_id')
-    insert_query = species_query
+    insert_query = """INSERT OR IGNORE INTO species
+    (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
+    VALUES(?, ?, ?, ?, ?, ?, ?)"""
 
 
 class BreedingWrapper(TableWrapper):
     table_name = 'breeding'
     columns = ('breeding_code', 'breeding_category', 'behavior_code')
-    insert_query = breeding_query
+    insert_query = """INSERT OR IGNORE INTO breeding
+    (breeding_code, breeding_category, behavior_code)
+    VALUES(?, ?, ?)"""
 
 
 class ProtocolWrapper(TableWrapper):
     table_name = 'protocol'
     columns = ('protocol_type', 'protocol_code', 'project_code')
-    insert_query = protocol_query
+    insert_query = """INSERT OR IGNORE INTO protocol (protocol_type, protocol_code, project_code)
+    VALUES(?, ?, ?)"""
 
 
 class SamplingWrapper(TableWrapper):
     table_name = 'sampling_event'
-    columns = ('sampling_event_identifier', 'observer_id', 'effort_distance_km', 'effort_area_ha', 'duration_minutes','trip_comments', 'latitude', 'longitude', 'all_species_reported', 'number_observers')
+    columns = ('sampling_event_identifier', 'observation_date', 'time_observations_started', 'observer_id', 'effort_distance_km', 'effort_area_ha', 'duration_minutes','trip_comments', 'latitude', 'longitude', 'all_species_reported', 'number_observers')
     insert_query = """INSERT OR IGNORE INTO sampling_event
-        (sampling_event_identifier, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, latitude, longitude, all_species_reported, number_observers)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, latitude, longitude, all_species_reported, number_observers)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     @classmethod
@@ -219,8 +204,6 @@ class ObservationWrapper(TableWrapper):
     table_name = 'observation'
     columns = (
         'location_data_id',
-        # 'bcrcode_id',
-        # 'ibacode_id',
         'species_id',
         'breeding_id',
         'protocol_id',
@@ -275,24 +258,7 @@ class ObservationWrapper(TableWrapper):
 WRAPPERS = (LocationWrapper, SpeciesWrapper, BreedingWrapper, ProtocolWrapper, SamplingWrapper)
 
 
-def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_lines: int=1000000, seek_to: Optional[int] = None) -> sqlite3.Connection:
-    """Build a sqlite database using pandas to parse the CSV
-
-    Args:
-        input_path (Path):                      Path to the CSV of observations
-        output_path (Optional[Path], optional): Location to store the database. DB will be built in memory if None Defaults to None.
-        max_lines (int, optional):              The maximum number of lines of the CSV to read. Defaults to 1000000.
-        seek_to (Optional[int], optional):      The position in the CSV to start reading lines at. Defaults to None.
-
-    Returns:
-        sqlite3.Connection: A connection to the finished database.
-    """
-    if output_path is None:
-        db = sqlite3.connect(':memory:')
-    else:
-        db = sqlite3.connect(str(output_path.absolute()))
-    create_tables(db)
-    # TODO: Max lines and seek
+def read_clean(input_path: Path) -> pd.DataFrame:
     df = pd.read_csv(input_path, sep="\t")
     renames = {x: x.lower().replace(' ', '_').replace('/', '_') for x in df.columns}
     df.rename(columns=renames, inplace=True)
@@ -301,14 +267,60 @@ def build_db_pandas(input_path: Path, output_path: Optional[Path] = None, max_li
     for col in df.columns:
         if col not in HEADINGS:
             df.drop(col, axis=1, inplace=True)
+    return df
+
+
+def build_db_pandas(input_path: Path, output_path: Optional[Path] = None) -> sqlite3.Connection:
+    """Build a sqlite database using pandas to parse the CSV
+
+    Args:
+        input_path (Path):                      Path to the CSV of observations
+        output_path (Optional[Path], optional): Location to store the database. DB will be built in memory if None Defaults to None.
+
+    Returns:
+        sqlite3.Connection: A connection to the finished database.
+    """
+    if output_path is None:
+        conn = sqlite3.connect(':memory:')
+    else:
+        conn = sqlite3.connect(str(output_path.absolute()))
+    create_tables(conn)
+    # TODO: Max lines and seek
+    df = read_clean(input_path)
 
     # Store subtables
     for wrapper in WRAPPERS:
-        df = wrapper.insert(df, db)
+        df = wrapper.insert(df, conn)
 
     # Store main observations table
     used_columns = [y for x in WRAPPERS for y in x.columns]
     just_obs = df.drop(used_columns, axis=1)
-    ObservationWrapper.insert(just_obs, db)
-    db.commit()
-    return db
+    ObservationWrapper.insert(just_obs, conn)
+    conn.commit()
+    return conn
+
+
+def build_db_incremental(input_path: Path, output_path: Path, max_size: int=1000000) -> sqlite3.Connection:
+    """Build a database incrementally.
+    Useful for very large observation files (>10GB).
+
+    Args:
+        input_path (Path):                      Path to the CSV of observations.
+        output_path (Path):                     Location to store the database.
+        max_lines (int, optional):              The maximum number of bytes of the CSV to read at a time.
+    """
+    cache_meta_path = config.DATA_HOME / f'{output_path.stem}_meta.pkl'
+
+    if cache_meta_path.is_file():
+        cache_meta = pickle.load(cache_meta_path.open('rb'))
+    else:
+        cache_meta = {
+            'seek_to': 0
+        }
+
+    conn = sqlite3.connect(str(output_path.absolute()))
+    # Check for tables
+
+    # Load subtables
+
+    raise NotImplementedError

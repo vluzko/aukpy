@@ -196,18 +196,18 @@ class Query:
     def get_query(self) -> Tuple[str, Tuple[Any, ...]]:
         if self.row_filter is not None:
             q_filter, vals = self.row_filter.query()
+            where = f'WHERE {q_filter}'
         else:
-            q_filter = ''
+            where = ''
             vals = ()
-        query = f"""SELECT {db.DF_COLUMNS} FROM
+        query = f"""SELECT {', '.join(db.DF_COLUMNS)} FROM
         observation
+        INNER JOIN sampling_event   ON sampling_event_id = sampling_event.id
         INNER JOIN species          ON species_id = species.id
         INNER JOIN location_data    ON location_data_id = location_data.id
-        INNER JOIN bcrcode          ON bcrcode_id = bcrcode.id
-        INNER JOIN ibacode          ON ibacode_id = ibacode.id
         INNER JOIN breeding         ON breeding_id = breeding.id
         INNER JOIN protocol         ON protocol_id = protocol.id
-        WHERE {q_filter}"""
+        {where}"""
         return query, vals
 
     def run(self, db_conn: sqlite3.Connection) -> List[Tuple[Any, ...]]:
@@ -229,6 +229,11 @@ def implicit_query(f):
         method = getattr(new_query, name)
         return method(*args, **kwargs)
     return wrapper
+
+
+def no_filter():
+    q = Query()
+    return q
 
 
 @implicit_query

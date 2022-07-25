@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS location_data (
     id integer PRIMARY KEY,
-    country_name text NOT NULL,
+    country text NOT NULL,
     country_code text NOT NULL,
-    state_name text,
+    state text,
     state_code text,
-    county_name text,
+    county text,
     county_code text,
     locality text,
     locality_id integer,
     locality_type text,
     usfws_code text,
     atlas_block text,
-    bcr_code text,
+    bcr_code float,
     iba_code text,
-    UNIQUE(country_name, country_code, state_name, state_code, county_name, county_code, locality, locality_id, locality_type, usfws_code, atlas_block)
+    UNIQUE(country, country_code, state, state_code, county, county_code, locality, locality_id, locality_type, usfws_code, atlas_block)
 );
 
 CREATE TABLE IF NOT EXISTS bcrcode (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
