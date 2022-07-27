@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS sampling_event (
     id integer PRIMARY KEY,
     sampling_event_identifier integer,
     observer_id integer NOT NULL,
-    observation_date text,
-    time_observations_started text,
+    observation_date integer NOT NULL,
+    time_observations_started integer,
     effort_distance_km float,
     effort_area_ha float,
     duration_minutes integer,
@@ -73,8 +73,6 @@ CREATE TABLE IF NOT EXISTS sampling_event (
 CREATE TABLE IF NOT EXISTS observation (
     id integer PRIMARY KEY,
     location_data_id integer NOT NULL,
-    -- bcrcode_id integer,
-    -- ibacode_id integer,
     species_id integer NOT NULL,
     breeding_id integer,
     protocol_id integer,
@@ -92,8 +90,6 @@ CREATE TABLE IF NOT EXISTS observation (
     exotic_code text,
     FOREIGN KEY (sampling_event_id) REFERENCES sampling_event(id),
     FOREIGN KEY (species_id) REFERENCES species(id),
-    -- FOREIGN KEY (bcrcode_id) REFERENCES bcrcode(id),
-    -- FOREIGN KEY (ibacode_id) REFERENCES ibacode(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
     FOREIGN KEY (location_data_id) REFERENCES location_data(id),
     FOREIGN KEY (protocol_id) REFERENCES protocol(id)
