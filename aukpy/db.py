@@ -112,7 +112,13 @@ def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
     df['observer_id'] = 'obsr' + df['observer_id'].astype(str)
 
     empty = df['usfws_code'].isna()
-    df[~empty]['usfws_code'] = 'USFWS_' + df[~empty]['usfws_code'].astype(str)
+    df.loc[~empty, 'usfws_code'] = 'USFWS_' + df[~empty]['usfws_code'].astype(str)
+
+    df['observation_date'] = pd.to_datetime(df['observation_date']).astype(str)
+
+    empty_time = df['time_observations_started'].isna()
+    s = pd.to_datetime(df.loc[~empty_time, 'time_observations_started'], unit='s').dt.time.astype(str)
+    df.loc[~empty_time, 'time_observations_started'] = s
     return df
 
 
@@ -204,6 +210,15 @@ class SamplingWrapper(TableWrapper):
         df['sampling_event_identifier'] = s
 
         df['observer_id'] = df['observer_id'].str[4:].astype(int)
+
+        # Convert to integer and then convert from nanoseconds to seconds
+        df['observation_date'] = pd.to_datetime(df['observation_date']).astype(int) // (10**9)
+
+        # Convert time to integer
+        has_time = ~df['time_observations_started'].isna()
+        split = df[has_time]['time_observations_started'].str.split(':')
+        seconds = split.apply(lambda x: int(x[0]) * 3600 + int(x[1]) * 60 + int(x[2]))
+        df.loc[has_time, 'time_observations_started'] = seconds
 
         return df
 
