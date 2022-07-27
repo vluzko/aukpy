@@ -1,5 +1,5 @@
 from ast import And
-from datetime import datetime
+import datetime
 from aukpy import db
 import pandas as pd
 import sqlite3
@@ -120,6 +120,15 @@ class GT(ColumnFilter):
 
 
 @dataclass
+class Between(ColumnFilter):
+    lower: Union[float, int]
+    upper: Union[float, int]
+
+    def query(self) -> Tuple[str, Tuple[Any, ...]]:
+        return f"{self.column} BETWEEN ? AND ?", (self.lower, self.upper)
+
+
+@dataclass
 class IsTrue(ColumnFilter):
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
         return f"{self.column} = 1", ()
@@ -230,8 +239,32 @@ class Query:
     def project(self, value: Union[str, Sequence[str]]) -> "Query":
         return self._update_filter(EqualsOrIn("protocol.project_code", value))
 
-    def time(self, after: str, before: str) -> "Query":
-        raise NotImplementedError
+    def time(self, after: str = "00:00", before: str = "23:59") -> "Query":
+        """Select observations started between the given hours.
+
+        Args:
+            after: The minimum start time of the observation event. Should be a string in 24 hour format.
+            before: The maximum start time of the observation event. Should be a string in 24 hour format.
+
+        Returns:
+            Query: A query object that will select the relevant observations.
+        """
+        after_ts = pd.to_datetime(after)
+        before_ts = pd.to_datetime(before)
+        after_delta = (
+            datetime.datetime.combine(datetime.date.min, after_ts.time())
+            - datetime.datetime.min
+        )
+        before_delta = (
+            datetime.datetime.combine(datetime.date.min, before_ts.time())
+            - datetime.datetime.min
+        )
+
+        after_s = int(after_delta.total_seconds())
+        before_s = int(before_delta.total_seconds())
+
+        f = Between("time_observations_started", after_s, before_s)
+        return self._update_filter(f)
 
     def duration(self, minimum: float = 0, maximum: Optional[float] = None) -> "Query":
         """Filter on the duration of the observation period, in minutes.
