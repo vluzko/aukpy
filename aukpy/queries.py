@@ -8,12 +8,16 @@ from typing import Iterable, List, Optional, Sequence, Union, Tuple, Any
 
 
 def check_simple_type(value):
-    return isinstance(value, str) or isinstance(value, float) or isinstance(value, int) or isinstance(value, bool)
+    return (
+        isinstance(value, str)
+        or isinstance(value, float)
+        or isinstance(value, int)
+        or isinstance(value, bool)
+    )
 
 
 class Filter:
-
-    def __and__(self, other: 'Filter') -> 'Filter':
+    def __and__(self, other: "Filter") -> "Filter":
         if isinstance(self, Empty):
             return other
         elif isinstance(other, Empty):
@@ -21,7 +25,7 @@ class Filter:
         else:
             return AndFilter(self, other)
 
-    def __or__(self, other: 'Filter') -> 'Filter':
+    def __or__(self, other: "Filter") -> "Filter":
         if isinstance(self, Empty):
             return other
         elif isinstance(other, Empty):
@@ -34,9 +38,8 @@ class Filter:
 
 
 class Empty(Filter):
-
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return '', ()
+        return "", ()
 
 
 @dataclass
@@ -48,7 +51,7 @@ class AndFilter(Filter):
         f1, v1 = self.filter_1.query()
         f2, v2 = self.filter_2.query()
         vals = v1 + v2
-        return f'{f1} AND {f2}', vals
+        return f"{f1} AND {f2}", vals
 
 
 @dataclass
@@ -60,7 +63,7 @@ class OrFilter(Filter):
         f1, v1 = self.filter_1.query()
         f2, v2 = self.filter_2.query()
         vals = v1 + v2
-        return f'{f1} OR {f2}', vals
+        return f"{f1} OR {f2}", vals
 
 
 @dataclass
@@ -76,7 +79,7 @@ class IsIn(ColumnFilter):
     values: Tuple[Any, ...]
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} in ?', (self.values, )
+        return f"{self.column} in ?", (self.values,)
 
 
 @dataclass
@@ -84,7 +87,7 @@ class Is(ColumnFilter):
     value: Any
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} = ?', (self.value, )
+        return f"{self.column} = ?", (self.value,)
 
 
 @dataclass
@@ -93,11 +96,11 @@ class EqualsOrIn(ColumnFilter):
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
         if isinstance(self.value, tuple):
-            return f'{self.column} IN (?)', self.value
+            return f"{self.column} IN (?)", self.value
         else:
             # The only types that are contained in the database are these simple types
             assert check_simple_type(self.value)
-            return f'{self.column} = ?', (self.value, )
+            return f"{self.column} = ?", (self.value,)
 
 
 @dataclass
@@ -105,7 +108,7 @@ class LT(ColumnFilter):
     value: Union[float, int]
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} < ?', (self.value, )
+        return f"{self.column} < ?", (self.value,)
 
 
 @dataclass
@@ -113,28 +116,26 @@ class GT(ColumnFilter):
     value: Union[float, int]
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} > ?', (self.value, )
+        return f"{self.column} > ?", (self.value,)
 
 
 @dataclass
 class IsTrue(ColumnFilter):
-
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} = 1', ()
+        return f"{self.column} = 1", ()
 
 
 @dataclass
 class IsFalse(ColumnFilter):
-
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f'{self.column} = 0', ()
+        return f"{self.column} = 0", ()
 
 
 @dataclass
 class Query:
     """A wrapper around a set of filters for each table"""
 
-    row_filter: Optional[Filter]=None
+    row_filter: Optional[Filter] = None
 
     def _update_filter(self, new_filt: Filter):
         if self.row_filter is None:
@@ -142,7 +143,7 @@ class Query:
         else:
             return replace(self, row_filter=self.row_filter & new_filt)
 
-    def species(self, names: Union[str, Iterable[str]]) -> 'Query':
+    def species(self, names: Union[str, Iterable[str]]) -> "Query":
         """Filter by species name.
         Can be any of scientific name, common name, subspecies scientific name, or subspecies common name.
 
@@ -153,33 +154,50 @@ class Query:
             names_val: Tuple[str, ...] = (names,)
         else:
             names_val = tuple(names)
-        scientific_filt = EqualsOrIn('species.scientific_name', names_val)
-        common_filt = EqualsOrIn('species.common_name', names_val)
-        sub_science = EqualsOrIn('species.subspecies_scientific_name', names_val)
-        sub_common = EqualsOrIn('species.subspecies_common_name', names_val)
+        scientific_filt = EqualsOrIn("species.scientific_name", names_val)
+        common_filt = EqualsOrIn("species.common_name", names_val)
+        sub_science = EqualsOrIn("species.subspecies_scientific_name", names_val)
+        sub_common = EqualsOrIn("species.subspecies_common_name", names_val)
         new_filt = scientific_filt | common_filt | sub_science | sub_common
         return self._update_filter(new_filt)
 
-    def country(self, names: Union[str, Sequence[str]]) -> 'Query':
+    def country(self, names: Union[str, Sequence[str]]) -> "Query":
         """Filter by country name or country code."""
-        new_filt = EqualsOrIn('location_data.country_name', names) | EqualsOrIn('location_data.country_code', names)
+        new_filt = EqualsOrIn("location_data.country_name", names) | EqualsOrIn(
+            "location_data.country_code", names
+        )
         return self._update_filter(new_filt)
 
-    def state(self, names: Union[str, Sequence[str]]) -> 'Query':
+    def state(self, names: Union[str, Sequence[str]]) -> "Query":
         """Filter by state name or state code."""
-        new_filt = EqualsOrIn('location_data.state_name', names) | EqualsOrIn('location_data.state_code', names)
+        new_filt = EqualsOrIn("location_data.state_name", names) | EqualsOrIn(
+            "location_data.state_code", names
+        )
         return self._update_filter(new_filt)
 
-    def bcr(self, code: Union[str, Sequence[str]]) -> 'Query':
+    def bcr(self, code: Union[str, Sequence[str]]) -> "Query":
         """Filter by BCR code"""
-        return self._update_filter(EqualsOrIn('bcrcode.bcr_code', code))
+        return self._update_filter(EqualsOrIn("bcrcode.bcr_code", code))
 
-    def bbox(self, min_long: float=-180.0, min_lat: float=-90.0, max_long: float=180.0, max_lat: float=90.0) -> 'Query':
+    def bbox(
+        self,
+        min_long: float = -180.0,
+        min_lat: float = -90.0,
+        max_long: float = 180.0,
+        max_lat: float = 90.0,
+    ) -> "Query":
         """Filter for observations within a bounding box."""
-        new_filt = GT('longitude', min_long) & LT('longitude', max_long) & GT('latitude', min_lat) & LT('latitude', max_lat)
+        new_filt = (
+            GT("longitude", min_long)
+            & LT("longitude", max_long)
+            & GT("latitude", min_lat)
+            & LT("latitude", max_lat)
+        )
         return self._update_filter(new_filt)
 
-    def date(self, after: Optional[str]=None, before: Optional[str]=None) -> 'Query':
+    def date(
+        self, after: Optional[str] = None, before: Optional[str] = None
+    ) -> "Query":
         """Filter for a specific set of dates
         At least one of `after` or `before` must not be None
         Args:
@@ -190,55 +208,61 @@ class Query:
         # Convert to integers
         if after is not None:
             after_seconds = int(pd.to_datetime(after).timestamp())
-            after_filter: Filter = GT('observation_date', after_seconds)
+            after_filter: Filter = GT("observation_date", after_seconds)
         else:
             after_filter = Empty()
         if before is not None:
             before_seconds = int(pd.to_datetime(before).timestamp())
-            before_filter: Filter = LT('observation_date', before_seconds)
+            before_filter: Filter = LT("observation_date", before_seconds)
         else:
             before_filter = Empty()
 
         return self._update_filter(after_filter & before_filter)
 
-    def last_edited(self, ) -> 'Query':
+    def last_edited(
+        self,
+    ) -> "Query":
         raise NotImplementedError
 
-    def protocol(self, value: Union[str, Sequence[str]]) -> 'Query':
-        return self._update_filter(EqualsOrIn('protocol.protocol_ code', value))
+    def protocol(self, value: Union[str, Sequence[str]]) -> "Query":
+        return self._update_filter(EqualsOrIn("protocol.protocol_ code", value))
 
-    def project(self, value: Union[str, Sequence[str]]) -> 'Query':
-        return self._update_filter(EqualsOrIn('protocol.project_code', value))
+    def project(self, value: Union[str, Sequence[str]]) -> "Query":
+        return self._update_filter(EqualsOrIn("protocol.project_code", value))
 
-    def time(self, after: str, before: str) -> 'Query':
+    def time(self, after: str, before: str) -> "Query":
         raise NotImplementedError
 
-    def duration(self, minimum: float=0, maximum: Optional[float] = None) -> 'Query':
+    def duration(self, minimum: float = 0, maximum: Optional[float] = None) -> "Query":
         """Filter on the duration of the observation period, in minutes.
         Args:
             minimum: The minimum duration time.
             maximum: The maximum duration time. Defaults to no upper bound.
         """
-        new_filt: Filter = GT('duration', minimum)
+        new_filt: Filter = GT("duration_minutes", minimum)
         if maximum is not None:
-            new_filt = new_filt & LT('duration', maximum)
+            new_filt = new_filt & LT("duration_minutes", maximum)
         return self._update_filter(new_filt)
 
-    def distance(self, ) -> 'Query':
+    def distance(
+        self,
+    ) -> "Query":
         raise NotImplementedError
 
-    def breeding(self, ) -> 'Query':
+    def breeding(
+        self,
+    ) -> "Query":
         raise NotImplementedError
 
-    def complete(self) -> 'Query':
-        return self._update_filter(IsTrue('complete'))
+    def complete(self) -> "Query":
+        return self._update_filter(IsTrue("complete"))
 
     def get_query(self) -> Tuple[str, Tuple[Any, ...]]:
         if self.row_filter is not None:
             q_filter, vals = self.row_filter.query()
-            where = f'WHERE {q_filter}'
+            where = f"WHERE {q_filter}"
         else:
-            where = ''
+            where = ""
             vals = ()
         query = f"""SELECT {', '.join(db.DF_COLUMNS)} FROM
         observation
@@ -264,10 +288,12 @@ class Query:
 
 def implicit_query(f):
     name = f.__name__
+
     def wrapper(*args, **kwargs):
         new_query = Query(None)
         method = getattr(new_query, name)
         return method(*args, **kwargs)
+
     return wrapper
 
 
@@ -297,7 +323,12 @@ def bcr(code: Union[str, Sequence[str]]) -> Query:
 
 
 @implicit_query
-def bbox(min_long: float=-180.0, min_lat: float=-90.0, max_long: float=180.0, max_lat: float=90.0) -> Query:
+def bbox(
+    min_long: float = -180.0,
+    min_lat: float = -90.0,
+    max_long: float = 180.0,
+    max_lat: float = 90.0,
+) -> Query:
     pass
 
 
@@ -327,8 +358,8 @@ def time() -> Query:
 
 
 @implicit_query
-def duration() -> Query:
-    raise NotImplementedError
+def duration(minimum: float = 0, maximum: Optional[float] = None) -> Query:
+    pass
 
 
 @implicit_query
