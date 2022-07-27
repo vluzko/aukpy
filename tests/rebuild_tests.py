@@ -7,18 +7,19 @@ from tests import SMALL, MEDIUM
 
 
 def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
-    df.sort_values(by='global_unique_identifier', inplace=True)
+    df.sort_values(by="global_unique_identifier", inplace=True)
     df.index = range(len(df))
-    df.fillna('', inplace=True)
-    original.sort_values(by='global_unique_identifier', inplace=True)
+    df.fillna("", inplace=True)
+    original.sort_values(by="global_unique_identifier", inplace=True)
     original.index = range(len(original))
-    original.fillna('', inplace=True)
+    original.fillna("", inplace=True)
 
     assert len(df) == len(original)
     assert set(df.columns) == set(original.columns)
 
     for column in df.columns:
-        assert (df[column] == original[column]).all()
+        comp = df[column] == original[column]
+        assert comp.all()
 
 
 def test_rebuild_small():
