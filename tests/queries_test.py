@@ -31,3 +31,10 @@ def test_duration_filter():
 def test_time_filter():
     conn = sqlite3.connect(str(MEDIUM_DB))
     res = queries.time(after="03:00", before="06:00").run_pandas(conn)
+    assert len(res) == 17056
+
+
+def test_country_filter():
+    conn = sqlite3.connect(str(SMALL_DB))
+    res = queries.country(("US", "Mexico")).run_pandas(conn)
+    assert len(res) == 10000

@@ -1,9 +1,10 @@
 from ast import And
 import datetime
+from functools import reduce
 from aukpy import db
 import pandas as pd
 import sqlite3
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace as dc_replace
 from typing import Iterable, List, Optional, Sequence, Union, Tuple, Any
 
 
@@ -40,6 +41,9 @@ class Filter:
 class Empty(Filter):
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
         return "", ()
+
+    def __or__(self, other: Filter) -> Filter:
+        return other
 
 
 @dataclass
@@ -79,7 +83,8 @@ class IsIn(ColumnFilter):
     values: Tuple[Any, ...]
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f"{self.column} in ?", (self.values,)
+        quotes = ",".join(("?" for _ in self.values))
+        return f"{self.column} in ({quotes})", self.values
 
 
 @dataclass
@@ -96,7 +101,7 @@ class EqualsOrIn(ColumnFilter):
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
         if isinstance(self.value, tuple):
-            return f"{self.column} IN (?)", self.value
+            return IsIn(self.column, self.value).query()
         else:
             # The only types that are contained in the database are these simple types
             assert check_simple_type(self.value)
@@ -144,13 +149,12 @@ class IsFalse(ColumnFilter):
 class Query:
     """A wrapper around a set of filters for each table"""
 
+    row_filters: List[Filter] = field(default_factory=list)
     row_filter: Optional[Filter] = None
 
     def _update_filter(self, new_filt: Filter):
-        if self.row_filter is None:
-            return replace(self, row_filter=new_filt)
-        else:
-            return replace(self, row_filter=self.row_filter & new_filt)
+        new_filters = self.row_filters + [new_filt]
+        return dc_replace(self, row_filters=new_filters)
 
     def species(self, names: Union[str, Iterable[str]]) -> "Query":
         """Filter by species name.
@@ -160,22 +164,39 @@ class Query:
             names: A name or names.
         """
         if isinstance(names, str):
-            names_val: Tuple[str, ...] = (names,)
+            names_param: Tuple[str, ...] = (names,)
         else:
-            names_val = tuple(names)
-        scientific_filt = EqualsOrIn("species.scientific_name", names_val)
-        common_filt = EqualsOrIn("species.common_name", names_val)
-        sub_science = EqualsOrIn("species.subspecies_scientific_name", names_val)
-        sub_common = EqualsOrIn("species.subspecies_common_name", names_val)
+            names_param = tuple(names)
+        scientific_filt = EqualsOrIn("species.scientific_name", names_param)
+        common_filt = EqualsOrIn("species.common_name", names_param)
+        sub_science = EqualsOrIn("species.subspecies_scientific_name", names_param)
+        sub_common = EqualsOrIn("species.subspecies_common_name", names_param)
         new_filt = scientific_filt | common_filt | sub_science | sub_common
         return self._update_filter(new_filt)
 
-    def country(self, names: Union[str, Sequence[str]]) -> "Query":
+    def country(
+        self, names: Union[str, Sequence[str]], replace: bool = True
+    ) -> "Query":
         """Filter by country name or country code."""
-        new_filt = EqualsOrIn("location_data.country_name", names) | EqualsOrIn(
+        if isinstance(names, str):
+            names_param: Tuple[str, ...] = (names,)
+        else:
+            names_param = tuple(names)
+        new_filt = EqualsOrIn("location_data.country", names_param) | EqualsOrIn(
             "location_data.country_code", names
         )
-        return self._update_filter(new_filt)
+
+        # Get rid of old country filters if replace is True
+        if replace is True:
+            new_filters = [
+                x
+                for x in self.row_filters
+                if not (hasattr(x, "column") and x.column == "country")
+            ]
+            new_obj = dc_replace(self, row_filters=new_filters)
+            return new_obj._update_filter(new_filt)
+        else:
+            return self._update_filter(new_filt)
 
     def state(self, names: Union[str, Sequence[str]]) -> "Query":
         """Filter by state name or state code."""
@@ -291,8 +312,9 @@ class Query:
         return self._update_filter(IsTrue("complete"))
 
     def get_query(self) -> Tuple[str, Tuple[Any, ...]]:
-        if self.row_filter is not None:
-            q_filter, vals = self.row_filter.query()
+        if len(self.row_filters) > 0:
+            single_filter = reduce(lambda a, b: a & b, self.row_filters)
+            q_filter, vals = single_filter.query()
             where = f"WHERE {q_filter}"
         else:
             where = ""
@@ -323,7 +345,7 @@ def implicit_query(f):
     name = f.__name__
 
     def wrapper(*args, **kwargs):
-        new_query = Query(None)
+        new_query = Query()
         method = getattr(new_query, name)
         return method(*args, **kwargs)
 
