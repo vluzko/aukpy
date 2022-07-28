@@ -10,6 +10,8 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
+from torch import not_equal
+
 from aukpy import config
 
 
@@ -160,6 +162,11 @@ def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
         df.loc[~empty_time, "time_observations_started"], unit="s"
     ).dt.time.astype(str)
     df.loc[~empty_time, "time_observations_started"] = s
+
+    not_empty_gi = ~df["group_identifier"].isna()
+    s = "G" + df[not_empty_gi]["group_identifier"].astype(float).astype(int).astype(str)
+    df.loc[not_empty_gi, "group_identifier"] = s
+
     return df
 
 
@@ -368,6 +375,10 @@ class ObservationWrapper(TableWrapper):
         # Global unique identifier
         s = df["global_unique_identifier"].str[37:].astype(int)
         df["global_unique_identifier"] = s
+
+        not_empty = ~df["group_identifier"].isna()
+        s = df[not_empty]["group_identifier"].str[1:].astype(int)
+        df.loc[not_empty, "group_identifier"] = s
 
         return df
 
