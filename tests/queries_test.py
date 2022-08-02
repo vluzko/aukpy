@@ -38,3 +38,13 @@ def test_country_filter():
     conn = sqlite3.connect(str(SMALL_DB))
     res = queries.country(("US", "Mexico")).run_pandas(conn)
     assert len(res) == 10000
+
+
+def test_distance_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.distance(0.0, 0.2).run_pandas(conn)
+    assert "Stationary" in res["protocol_type"].unique()
+    assert (res["effort_distance_km"] <= 0.2).all()
+
+    res = queries.distance(0.1, 0.2).run_pandas(conn)
+    assert (res["effort_distance_km"] >= 0.1).all()
