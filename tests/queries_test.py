@@ -48,3 +48,14 @@ def test_distance_filter():
 
     res = queries.distance(0.1, 0.2).run_pandas(conn)
     assert (res["effort_distance_km"] >= 0.1).all()
+
+
+def test_breeding_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.breeding("CF").run_pandas(conn)
+    assert (res["breeding_code"] == "CF").all()
+    assert len(res) == 54
+
+    res = queries.breeding(("CF", "CN")).run_pandas(conn)
+    assert set(res["breeding_code"]) == {"CF", "CN"}
+    assert len(res["breeding_code"]) == 217
