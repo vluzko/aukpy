@@ -1,11 +1,13 @@
-from ast import And
 import datetime
 from functools import reduce
 from aukpy import db
 import pandas as pd
 import sqlite3
 from dataclasses import dataclass, field, replace as dc_replace
-from typing import Iterable, List, Optional, Sequence, Union, Tuple, Any
+from typing import Iterable, List, Optional, Sequence, Union, Tuple, Any, Literal
+
+
+Distance = Literal["km", "miles"]
 
 
 def check_simple_type(value):
@@ -294,14 +296,33 @@ class Query:
             maximum: The maximum duration time. Defaults to no upper bound.
         """
         new_filt: Filter = GT("duration_minutes", minimum)
+        new_obj = self._update_filter(new_filt)
         if maximum is not None:
-            new_filt = new_filt & LT("duration_minutes", maximum)
-        return self._update_filter(new_filt)
+            return new_obj._update_filter(LT("duration_minutes", maximum))
+        else:
+            return self._update_filter(new_filt)
 
     def distance(
-        self,
+        self, minimum: float = 0.0, maximum: float = 1e9, unit: Distance = "km"
     ) -> "Query":
-        raise NotImplementedError
+        """Filter on the distance traveled during the observation period.
+
+        Args:
+            minimum: The minimum distance to accept. If 0, 'stationary' observations are also accepted.
+            maximum: The maximum distance to accept.
+            unit: The unit of distance, either 'km' or 'miles'. Defaults to 'km'
+        """
+        MILES_TO_KM = 1.60934
+        if unit == "miles":
+            minimum *= MILES_TO_KM
+            maximum *= MILES_TO_KM
+
+        if minimum == 0.0:
+            filt = LT("effort_distance_km", maximum) | Is("protocol_code", "stationary")
+            return self._update_filter(filt)
+        else:
+            filt = Between("effort_distance_km", minimum, maximum)
+            return self._update_filter(filt)
 
     def breeding(
         self,
