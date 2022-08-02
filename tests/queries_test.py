@@ -70,3 +70,14 @@ def test_project_filter():
     res = queries.project(("EBIRD_CAN", "EBIRD_QC")).run_pandas(conn)
     assert set(res["project_code"]) == {"EBIRD_CAN", "EBIRD_QC"}
     assert len(res["project_code"]) == 1313
+
+
+def test_protocol_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.protocol("Stationary").run_pandas(conn)
+    assert (res["protocol_type"] == "Stationary").all()
+    assert len(res) == 307485
+
+    res = queries.protocol(("Stationary", "Incidental")).run_pandas(conn)
+    assert set(res["protocol_type"]) == {"Stationary", "Incidental"}
+    assert len(res["protocol_type"]) == 359921
