@@ -4,13 +4,23 @@ from aukpy import db
 import pandas as pd
 import sqlite3
 from dataclasses import dataclass, field, replace as dc_replace
-from typing import Iterable, List, Optional, Sequence, Union, Tuple, Any, Literal
+from typing import (
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Union,
+    Tuple,
+    Any,
+    Literal,
+    TypeGuard,
+)
 
 
 Distance = Literal["km", "miles"]
 
 
-def check_simple_type(value):
+def check_simple_type(value) -> TypeGuard[Union[str, int, float, bool]]:
     return (
         isinstance(value, str)
         or isinstance(value, float)
@@ -99,15 +109,13 @@ class Is(ColumnFilter):
 
 @dataclass
 class EqualsOrIn(ColumnFilter):
-    value: Any
+    value: Union[str, int, float, bool, Iterable[Any]]
 
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        if isinstance(self.value, tuple):
-            return IsIn(self.column, self.value).query()
-        else:
-            # The only types that are contained in the database are these simple types
-            assert check_simple_type(self.value)
+        if check_simple_type(self.value):
             return f"{self.column} = ?", (self.value,)
+        else:
+            return IsIn(self.column, tuple(self.value)).query()  # type: ignore
 
 
 @dataclass
@@ -191,9 +199,7 @@ class Query:
         # Get rid of old country filters if replace is True
         if replace is True:
             new_filters = [
-                x
-                for x in self.row_filters
-                if not (hasattr(x, "column") and x.column == "country")
+                x for x in self.row_filters if not getattr(x, "column", False)
             ]
             new_obj = dc_replace(self, row_filters=new_filters)
             return new_obj._update_filter(new_filt)
@@ -326,8 +332,17 @@ class Query:
 
     def breeding(
         self,
+        breeding_code: Union[str, Iterable[str]],
     ) -> "Query":
-        raise NotImplementedError
+        """Filter observations on breeding code.
+
+        Args:
+            breeding_code: A breeding code or codes to filter on
+        """
+        if isinstance(breeding_code, str):
+            return self._update_filter(Is("breeding_code", breeding_code))
+        else:
+            return self._update_filter(IsIn("breeding_code", tuple(breeding_code)))
 
     def complete(self) -> "Query":
         return self._update_filter(IsTrue("complete"))
