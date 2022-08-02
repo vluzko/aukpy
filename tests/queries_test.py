@@ -59,3 +59,14 @@ def test_breeding_filter():
     res = queries.breeding(("CF", "CN")).run_pandas(conn)
     assert set(res["breeding_code"]) == {"CF", "CN"}
     assert len(res["breeding_code"]) == 217
+
+
+def test_project_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.project("EBIRD_CAN").run_pandas(conn)
+    assert (res["project_code"] == "EBIRD_CAN").all()
+    assert len(res) == 1291
+
+    res = queries.project(("EBIRD_CAN", "EBIRD_QC")).run_pandas(conn)
+    assert set(res["project_code"]) == {"EBIRD_CAN", "EBIRD_QC"}
+    assert len(res["project_code"]) == 1313

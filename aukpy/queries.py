@@ -263,10 +263,15 @@ class Query:
         raise NotImplementedError
 
     def protocol(self, value: Union[str, Sequence[str]]) -> "Query":
-        return self._update_filter(EqualsOrIn("protocol.protocol_ code", value))
+        return self._update_filter(EqualsOrIn("protocol_code", value))
 
-    def project(self, value: Union[str, Sequence[str]]) -> "Query":
-        return self._update_filter(EqualsOrIn("protocol.project_code", value))
+    def project(self, project: Union[str, Iterable[str]]) -> "Query":
+        """Filter for observations that are part of a particular project.
+
+        Args:
+            project: The name of the project
+        """
+        return self._update_filter(EqualsOrIn("project_code", project))
 
     def time(self, after: str = "00:00", before: str = "23:59") -> "Query":
         """Select observations started between the given hours.
