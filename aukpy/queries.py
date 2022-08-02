@@ -262,8 +262,14 @@ class Query:
     ) -> "Query":
         raise NotImplementedError
 
-    def protocol(self, value: Union[str, Sequence[str]]) -> "Query":
-        return self._update_filter(EqualsOrIn("protocol_code", value))
+    def protocol(self, protocol: Union[str, Iterable[str]]) -> "Query":
+        """Filter for observations obtained using a particular protocol.
+        The most common protocols are stationary, traveling, and casual.
+
+        Args:
+            protocol: The protocol or protocols to filter for
+        """
+        return self._update_filter(EqualsOrIn("protocol_type", protocol))
 
     def project(self, project: Union[str, Iterable[str]]) -> "Query":
         """Filter for observations that are part of a particular project.
