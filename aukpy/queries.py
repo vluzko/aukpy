@@ -185,7 +185,7 @@ class Query:
         return self._update_filter(new_filt)
 
     def country(
-        self, names: Union[str, Sequence[str]], replace: bool = True
+        self, names: Union[str, Iterable[str]], replace: bool = True
     ) -> "Query":
         """Filter by country name or country code."""
         if isinstance(names, str):
@@ -206,14 +206,14 @@ class Query:
         else:
             return self._update_filter(new_filt)
 
-    def state(self, names: Union[str, Sequence[str]]) -> "Query":
+    def state(self, names: Union[str, Iterable[str]]) -> "Query":
         """Filter by state name or state code."""
         new_filt = EqualsOrIn("location_data.state_name", names) | EqualsOrIn(
             "location_data.state_code", names
         )
         return self._update_filter(new_filt)
 
-    def bcr(self, code: Union[str, Sequence[str]]) -> "Query":
+    def bcr(self, code: Union[str, Iterable[str]]) -> "Query":
         """Filter by BCR code"""
         return self._update_filter(EqualsOrIn("bcrcode.bcr_code", code))
 
@@ -405,22 +405,22 @@ def no_filter():
 
 
 @implicit_query
-def species(names: Union[str, Sequence[str]]):
+def species(names: Union[str, Iterable[str]]):
     pass
 
 
 @implicit_query
-def country(names: Union[str, Sequence[str]]) -> Query:
+def country(names: Union[str, Iterable[str]]) -> Query:
     pass
 
 
 @implicit_query
-def state(names: Union[str, Sequence[str]]) -> Query:
+def state(names: Union[str, Iterable[str]]) -> Query:
     pass
 
 
 @implicit_query
-def bcr(code: Union[str, Sequence[str]]) -> Query:
+def bcr(code: Union[str, Iterable[str]]) -> Query:
     pass
 
 
@@ -435,8 +435,8 @@ def bbox(
 
 
 @implicit_query
-def date() -> Query:
-    raise NotImplementedError
+def date(after: Optional[str] = None, before: Optional[str] = None) -> Query:
+    pass
 
 
 @implicit_query
@@ -445,18 +445,18 @@ def last_edited() -> Query:
 
 
 @implicit_query
-def protocol() -> Query:
-    raise NotImplementedError
+def protocol(protocol: Union[str, Iterable[str]]) -> Query:
+    pass
 
 
 @implicit_query
-def project() -> Query:
-    raise NotImplementedError
+def project(project: Union[str, Iterable[str]]) -> Query:
+    pass
 
 
 @implicit_query
-def time() -> Query:
-    raise NotImplementedError
+def time(after: str = "00:00", before: str = "23:59") -> Query:
+    pass
 
 
 @implicit_query
@@ -465,13 +465,15 @@ def duration(minimum: float = 0, maximum: Optional[float] = None) -> Query:
 
 
 @implicit_query
-def distance() -> Query:
-    raise NotImplementedError
+def distance(
+    minimum: float = 0.0, maximum: float = 1e9, unit: Distance = "km"
+) -> Query:
+    pass
 
 
 @implicit_query
-def breeding() -> Query:
-    raise NotImplementedError
+def breeding(breeding_code: Union[str, Iterable[str]]) -> Query:
+    pass
 
 
 @implicit_query
