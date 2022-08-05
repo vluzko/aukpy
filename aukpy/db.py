@@ -167,6 +167,8 @@ def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
     s = "G" + df[not_empty_gi]["group_identifier"].astype(float).astype(int).astype(str)
     df.loc[not_empty_gi, "group_identifier"] = s
 
+    df["last_edited_date"] = pd.to_datetime(df["last_edited_date"]).astype(int) * 1e9
+
     return df
 
 
@@ -306,7 +308,7 @@ class SamplingWrapper(TableWrapper):
 
         # Convert to integer and then convert from nanoseconds to seconds
         df["observation_date"] = pd.to_datetime(df["observation_date"]).astype(int) // (
-            10**9
+            1e9
         )
 
         # Convert time to integer
@@ -379,6 +381,10 @@ class ObservationWrapper(TableWrapper):
         not_empty = ~df["group_identifier"].isna()
         s = df[not_empty]["group_identifier"].str[1:].astype(int)
         df.loc[not_empty, "group_identifier"] = s
+
+        df["last_edited_date"] = (
+            pd.to_datetime(df["last_edited_date"]).astype(int) // 1e9
+        )
 
         return df
 

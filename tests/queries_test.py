@@ -1,6 +1,7 @@
-from pathlib import Path
+import pandas as pd
 import sqlite3
-from aukpy import queries, db
+from pathlib import Path
+from aukpy import queries
 
 from tests import SMALL_DB, MEDIUM_DB
 
@@ -81,3 +82,11 @@ def test_protocol_filter():
     res = queries.protocol(("Stationary", "Incidental")).run_pandas(conn)
     assert set(res["protocol_type"]) == {"Stationary", "Incidental"}
     assert len(res["protocol_type"]) == 359921
+
+
+def test_last_edited_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.last_edited("2022-01-01").run_pandas(conn)
+
+    assert res["last_edited_date"].min() > pd.to_datetime("2022-01-01").timestamp()
+    assert len(res) == 27116
