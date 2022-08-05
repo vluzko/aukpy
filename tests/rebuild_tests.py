@@ -17,6 +17,11 @@ def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
     assert len(df) == len(original)
     assert set(df.columns) == set(original.columns)
 
+    # Don't want to deal with string formatting
+    original["last_edited_date"] = (
+        pd.to_datetime(original["last_edited_date"]).astype(int) // 1e9
+    )
+
     for column in df.columns:
         comp = df[column] == original[column]
         assert comp.all()

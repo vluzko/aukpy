@@ -258,9 +258,28 @@ class Query:
         return self._update_filter(after_filter & before_filter)
 
     def last_edited(
-        self,
+        self, after: Optional[str] = None, before: Optional[str] = None
     ) -> "Query":
-        raise NotImplementedError
+        """Filter for edits between a range of dates.
+        At least one of `after` or `before` must not be None
+        Args:
+            after: The start of the date range. Should be in year-month-day format. Defaults to None (no minimum date).
+            before: The end of the date range. Should be in year-month-day format. Defaults to None (no maximum date).
+        """
+        assert not (after is None and before is None)
+        # Convert to integers
+        if after is not None:
+            after_seconds = int(pd.to_datetime(after).timestamp())
+            after_filter: Filter = GT("last_edited_date", after_seconds)
+        else:
+            after_filter = Empty()
+        if before is not None:
+            before_seconds = int(pd.to_datetime(before).timestamp())
+            before_filter: Filter = LT("last_edited_date", before_seconds)
+        else:
+            before_filter = Empty()
+
+        return self._update_filter(after_filter & before_filter)
 
     def protocol(self, protocol: Union[str, Iterable[str]]) -> "Query":
         """Filter for observations obtained using a particular protocol.
@@ -441,7 +460,7 @@ def date(after: Optional[str] = None, before: Optional[str] = None) -> Query:
 
 @implicit_query
 def last_edited() -> Query:
-    raise NotImplementedError
+    pass
 
 
 @implicit_query
