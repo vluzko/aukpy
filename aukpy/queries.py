@@ -135,6 +135,22 @@ class GT(ColumnFilter):
 
 
 @dataclass
+class LE(ColumnFilter):
+    value: Union[float, int]
+
+    def query(self) -> Tuple[str, Tuple[Any, ...]]:
+        return f"{self.column} <= ?", (self.value,)
+
+
+@dataclass
+class GE(ColumnFilter):
+    value: Union[float, int]
+
+    def query(self) -> Tuple[str, Tuple[Any, ...]]:
+        return f"{self.column} >= ?", (self.value,)
+
+
+@dataclass
 class Between(ColumnFilter):
     lower: Union[float, int]
     upper: Union[float, int]
@@ -150,9 +166,12 @@ class IsTrue(ColumnFilter):
 
 
 @dataclass
-class IsFalse(ColumnFilter):
+class Wrapped(Filter):
+    inner: Filter
+
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
-        return f"{self.column} = 0", ()
+        sub_q, sub_v = self.inner.query()
+        return f"({sub_q})", sub_v
 
 
 @dataclass
@@ -233,6 +252,33 @@ class Query:
         )
         return self._update_filter(new_filt)
 
+    def _wildcard_date(self, after: Optional[str], before: Optional[str]) -> "Query":
+        if after is None:
+            after = "*-01-01"
+        if before is None:
+            before = "*-12-31"
+        current = datetime.datetime.now().year
+        after = after.replace("*", str(current))
+        before = before.replace("*", str(current))
+
+        after_dt = pd.to_datetime(after)
+        before_dt = pd.to_datetime(before) + pd.DateOffset(days=1)
+        offset = pd.DateOffset(years=1)
+
+        f: Filter = Empty()
+
+        # 1800 is the start of observations
+        while after_dt.year >= 1800:
+            new_f = GE("observation_date", int(after_dt.timestamp())) & LT(
+                "observation_date", int(before_dt.timestamp())
+            )
+
+            f = f | new_f
+            after_dt -= offset
+            before_dt -= offset
+
+        return self._update_filter(f)
+
     def date(
         self, after: Optional[str] = None, before: Optional[str] = None
     ) -> "Query":
@@ -245,13 +291,18 @@ class Query:
         assert not (after is None and before is None)
         # Convert to integers
         if after is not None:
-            after_seconds = int(pd.to_datetime(after).timestamp())
-            after_filter: Filter = GT("observation_date", after_seconds)
+
+            if after[0] == "*":
+                return self._wildcard_date(after, before)
+            after_seconds = int(pd.to_datetime(after, format="%Y-%m-%d").timestamp())
+            after_filter: Filter = GE("observation_date", after_seconds)
         else:
             after_filter = Empty()
         if before is not None:
-            before_seconds = int(pd.to_datetime(before).timestamp())
-            before_filter: Filter = LT("observation_date", before_seconds)
+            if before[0] == "*":
+                return self._wildcard_date(after, before)
+            before_seconds = int(pd.to_datetime(before, format="%Y-%m-%d").timestamp())
+            before_filter: Filter = LE("observation_date", before_seconds)
         else:
             before_filter = Empty()
 
@@ -269,12 +320,12 @@ class Query:
         assert not (after is None and before is None)
         # Convert to integers
         if after is not None:
-            after_seconds = int(pd.to_datetime(after).timestamp())
+            after_seconds = int(pd.to_datetime(after, format="%Y-%m-%d").timestamp())
             after_filter: Filter = GT("last_edited_date", after_seconds)
         else:
             after_filter = Empty()
         if before is not None:
-            before_seconds = int(pd.to_datetime(before).timestamp())
+            before_seconds = int(pd.to_datetime(before, format="%Y-%m-%d").timestamp())
             before_filter: Filter = LT("last_edited_date", before_seconds)
         else:
             before_filter = Empty()

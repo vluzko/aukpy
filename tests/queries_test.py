@@ -20,7 +20,7 @@ def test_date_filter():
     f = queries.date(after="2015-01-01", before="2015-01-05")
     res = f.run_pandas(conn)
     # This probably shouldn't be hard coded, given data sharing restrictions
-    assert len(res) == 22897
+    assert len(res) == 38018
 
 
 def test_duration_filter():
@@ -90,3 +90,9 @@ def test_last_edited_filter():
 
     assert res["last_edited_date"].min() > pd.to_datetime("2022-01-01").timestamp()
     assert len(res) == 27116
+
+
+def test_wildcard_filter():
+    conn = sqlite3.connect(str(MEDIUM_DB))
+    res = queries.date("*-02-05", "*-02-07").run_pandas(conn)
+    assert len(res) == 11915
