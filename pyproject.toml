@@ -1,34 +1,35 @@
+[project]
 name = "aukpy"
-version = "0.0.1"
-description = "Python library for working with eBird data"
-python = "^3.8"
-license = "MIT"
+version = "1.0.0"
+authors = [
+  { name="Vincent Luczkow", email="vincent.luczkow@gmail.com" },
+]
+description = "Reimplementation of auk in Python"
 readme = "README.md"
-homepage = "https://github.com/vluzko/aukpy"
-repository = "https://github.com/vluzko/aukpy"
-keywords = ["ebird"]
+license = { file="LICENSE" }
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
-[dependencies]
+dependencies = [
+    "numpy==1.23.1",
+    "pandas==1.4.3"
+]
 
-[dev-dependencies]
-pytest = "*"
-mypy = "*"
-black = "*"
-pre-commit = "*"
+[project.optional-dependencies]
+tests = [
+    "black==22.6.0",
+    "pytest==7.1.2"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/vluzko/aukpy"
+"Bug Tracker" = "https://github.com/vluzko/aukpy/issues"
+
 
 [build-system]
-requires = ["setuptools", "wheel"]
-
-[tool-black]
-line-length = 110
-force-exclude = '''
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.mypy_cache
-    | \.venv
-    | \.sql
-  )/
-)
-'''
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
