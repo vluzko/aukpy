@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aukpy package &mdash; aukpy 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> aukpy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">aukpy package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-aukpy.config">aukpy.config module</a></li>
+<li><a class="reference internal" href="#module-aukpy.db">aukpy.db module</a></li>
+<li><a class="reference internal" href="#module-aukpy.queries">aukpy.queries module</a></li>
+<li><a class="reference internal" href="#module-aukpy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">aukpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>aukpy package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/aukpy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="aukpy-package">
+<h1>aukpy package<a class="headerlink" href="#aukpy-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-aukpy.config">
+<span id="aukpy-config-module"></span><h2>aukpy.config module<a class="headerlink" href="#module-aukpy.config" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-aukpy.db">
+<span id="aukpy-db-module"></span><h2>aukpy.db module<a class="headerlink" href="#module-aukpy.db" title="Permalink to this heading"></a></h2>
+<p>Tools for building a sqlite database containing the eBird dataset.
+The full dataset is distributed as a ~400GB csv file, much of which is redundant.
+We store it in a fully normalized sqlite file instead, which reduces the size of the data
+and makes querying it much faster.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.BreedingWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">BreedingWrapper</span></span><a class="headerlink" href="#aukpy.db.BreedingWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.BreedingWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('breeding_code',</span> <span class="pre">'breeding_category',</span> <span class="pre">'behavior_code')</span></em><a class="headerlink" href="#aukpy.db.BreedingWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.BreedingWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSERT</span> <span class="pre">OR</span> <span class="pre">IGNORE</span> <span class="pre">INTO</span> <span class="pre">breeding\n</span>&#160;&#160;&#160; <span class="pre">(breeding_code,</span> <span class="pre">breeding_category,</span> <span class="pre">behavior_code)\n</span>&#160;&#160;&#160; <span class="pre">VALUES(?,</span> <span class="pre">?,</span> <span class="pre">?)'</span></em><a class="headerlink" href="#aukpy.db.BreedingWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.BreedingWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'breeding'</span></em><a class="headerlink" href="#aukpy.db.BreedingWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.LocationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">LocationWrapper</span></span><a class="headerlink" href="#aukpy.db.LocationWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.LocationWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('country',</span> <span class="pre">'country_code',</span> <span class="pre">'state',</span> <span class="pre">'state_code',</span> <span class="pre">'county',</span> <span class="pre">'county_code',</span> <span class="pre">'locality',</span> <span class="pre">'locality_id',</span> <span class="pre">'locality_type',</span> <span class="pre">'usfws_code',</span> <span class="pre">'atlas_block',</span> <span class="pre">'bcr_code',</span> <span class="pre">'iba_code')</span></em><a class="headerlink" href="#aukpy.db.LocationWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.LocationWrapper.df_processing">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.LocationWrapper.df_processing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.LocationWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;INSERT</span> <span class="pre">OR</span> <span class="pre">IGNORE</span> <span class="pre">INTO</span> <span class="pre">location_data\n</span>&#160;&#160;&#160; <span class="pre">('country',</span> <span class="pre">'country_code',</span> <span class="pre">'state',</span> <span class="pre">'state_code',</span> <span class="pre">'county',</span> <span class="pre">'county_code',</span> <span class="pre">'locality',</span> <span class="pre">'locality_id',</span> <span class="pre">'locality_type',</span> <span class="pre">'usfws_code',</span> <span class="pre">'atlas_block',</span> <span class="pre">'bcr_code',</span> <span class="pre">'iba_code')\n</span>&#160;&#160;&#160; <span class="pre">VALUES(?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?)&quot;</span></em><a class="headerlink" href="#aukpy.db.LocationWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.LocationWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'location_data'</span></em><a class="headerlink" href="#aukpy.db.LocationWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.ObservationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">ObservationWrapper</span></span><a class="headerlink" href="#aukpy.db.ObservationWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ObservationWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('location_data_id',</span> <span class="pre">'species_id',</span> <span class="pre">'breeding_id',</span> <span class="pre">'protocol_id',</span> <span class="pre">'sampling_event_id',</span> <span class="pre">'global_unique_identifier',</span> <span class="pre">'last_edited_date',</span> <span class="pre">'observation_count',</span> <span class="pre">'age_sex',</span> <span class="pre">'group_identifier',</span> <span class="pre">'has_media',</span> <span class="pre">'approved',</span> <span class="pre">'reviewed',</span> <span class="pre">'reason',</span> <span class="pre">'species_comments',</span> <span class="pre">'exotic_code')</span></em><a class="headerlink" href="#aukpy.db.ObservationWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.ObservationWrapper.df_processing">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.ObservationWrapper.df_processing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ObservationWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSERT</span> <span class="pre">INTO</span> <span class="pre">observation\n</span>&#160;&#160;&#160; <span class="pre">(\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">location_data_id,\nspecies_id,\nbreeding_id,\nprotocol_id,\nsampling_event_id,\nglobal_unique_identifier,\nlast_edited_date,\nobservation_count,\nage_sex,\ngroup_identifier,\nhas_media,\napproved,\nreviewed,\nreason,\nspecies_comments,\nexotic_code\n</span>&#160;&#160;&#160; <span class="pre">)\n</span>&#160;&#160;&#160; <span class="pre">VALUES\n</span>&#160;&#160;&#160; <span class="pre">(\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?,\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">?\n</span>&#160;&#160;&#160; <span class="pre">);'</span></em><a class="headerlink" href="#aukpy.db.ObservationWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ObservationWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'observation'</span></em><a class="headerlink" href="#aukpy.db.ObservationWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.ProtocolWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">ProtocolWrapper</span></span><a class="headerlink" href="#aukpy.db.ProtocolWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ProtocolWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('protocol_type',</span> <span class="pre">'protocol_code',</span> <span class="pre">'project_code')</span></em><a class="headerlink" href="#aukpy.db.ProtocolWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ProtocolWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSERT</span> <span class="pre">OR</span> <span class="pre">IGNORE</span> <span class="pre">INTO</span> <span class="pre">protocol</span> <span class="pre">(protocol_type,</span> <span class="pre">protocol_code,</span> <span class="pre">project_code)\n</span>&#160;&#160;&#160; <span class="pre">VALUES(?,</span> <span class="pre">?,</span> <span class="pre">?)'</span></em><a class="headerlink" href="#aukpy.db.ProtocolWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.ProtocolWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'protocol'</span></em><a class="headerlink" href="#aukpy.db.ProtocolWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.SamplingWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">SamplingWrapper</span></span><a class="headerlink" href="#aukpy.db.SamplingWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SamplingWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('sampling_event_identifier',</span> <span class="pre">'observation_date',</span> <span class="pre">'time_observations_started',</span> <span class="pre">'observer_id',</span> <span class="pre">'effort_distance_km',</span> <span class="pre">'effort_area_ha',</span> <span class="pre">'duration_minutes',</span> <span class="pre">'trip_comments',</span> <span class="pre">'latitude',</span> <span class="pre">'longitude',</span> <span class="pre">'all_species_reported',</span> <span class="pre">'number_observers')</span></em><a class="headerlink" href="#aukpy.db.SamplingWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.SamplingWrapper.df_processing">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.SamplingWrapper.df_processing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SamplingWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSERT</span> <span class="pre">OR</span> <span class="pre">IGNORE</span> <span class="pre">INTO</span> <span class="pre">sampling_event\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">(sampling_event_identifier,</span> <span class="pre">observation_date,</span> <span class="pre">time_observations_started,</span> <span class="pre">observer_id,</span> <span class="pre">effort_distance_km,</span> <span class="pre">effort_area_ha,</span> <span class="pre">duration_minutes,</span> <span class="pre">trip_comments,</span> <span class="pre">latitude,</span> <span class="pre">longitude,</span> <span class="pre">all_species_reported,</span> <span class="pre">number_observers)\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">VALUES(?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?)\n</span>&#160;&#160;&#160; <span class="pre">'</span></em><a class="headerlink" href="#aukpy.db.SamplingWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SamplingWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sampling_event'</span></em><a class="headerlink" href="#aukpy.db.SamplingWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.SpeciesWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">SpeciesWrapper</span></span><a class="headerlink" href="#aukpy.db.SpeciesWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.db.TableWrapper" title="aukpy.db.TableWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableWrapper</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SpeciesWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('taxonomic_order',</span> <span class="pre">'category',</span> <span class="pre">'common_name',</span> <span class="pre">'scientific_name',</span> <span class="pre">'subspecies_common_name',</span> <span class="pre">'subspecies_scientific_name',</span> <span class="pre">'taxon_concept_id')</span></em><a class="headerlink" href="#aukpy.db.SpeciesWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SpeciesWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSERT</span> <span class="pre">OR</span> <span class="pre">IGNORE</span> <span class="pre">INTO</span> <span class="pre">species\n</span>&#160;&#160;&#160; <span class="pre">(taxonomic_order,</span> <span class="pre">category,</span> <span class="pre">common_name,</span> <span class="pre">scientific_name,</span> <span class="pre">subspecies_common_name,</span> <span class="pre">subspecies_scientific_name,</span> <span class="pre">taxon_concept_id)\n</span>&#160;&#160;&#160; <span class="pre">VALUES(?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?,</span> <span class="pre">?)'</span></em><a class="headerlink" href="#aukpy.db.SpeciesWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.SpeciesWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'species'</span></em><a class="headerlink" href="#aukpy.db.SpeciesWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">TableWrapper</span></span><a class="headerlink" href="#aukpy.db.TableWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.db.TableWrapper.columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.df_processing">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.TableWrapper.df_processing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.insert">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.TableWrapper.insert" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.insert_query">
+<span class="sig-name descname"><span class="pre">insert_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aukpy.db.TableWrapper.insert_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aukpy.db.TableWrapper.table_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.db.TableWrapper.values_processing">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">values_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.db.TableWrapper.values_processing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.db.build_db_incremental">
+<span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">build_db_incremental</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Connection</span></span></span><a class="headerlink" href="#aukpy.db.build_db_incremental" title="Permalink to this definition"></a></dt>
+<dd><p>Build a database incrementally.
+Useful for very large observation files (&gt;10GB).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>Path</em>) – Path to the CSV of observations.</p></li>
+<li><p><strong>output_path</strong> (<em>Path</em>) – Location to store the database.</p></li>
+<li><p><strong>max_lines</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of bytes of the CSV to read at a time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.db.build_db_pandas">
+<span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">build_db_pandas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Connection</span></span></span><a class="headerlink" href="#aukpy.db.build_db_pandas" title="Permalink to this definition"></a></dt>
+<dd><p>Build a sqlite database using pandas to parse the CSV</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>Path</em>) – Path to the CSV of observations</p></li>
+<li><p><strong>output_path</strong> (<em>Optional</em><em>[</em><em>Path</em><em>]</em><em>, </em><em>optional</em>) – Location to store the database. DB will be built in memory if None Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A connection to the finished database.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>sqlite3.Connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.db.create_tables">
+<span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">create_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.db.create_tables" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.db.read_clean">
+<span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">read_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.read_clean" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.db.undo_compression">
+<span class="sig-prename descclassname"><span class="pre">aukpy.db.</span></span><span class="sig-name descname"><span class="pre">undo_compression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.db.undo_compression" title="Permalink to this definition"></a></dt>
+<dd><p>Undo the data compression performed when storing the dataframe in sqlite.
+Mostly this is just converting things back into strings</p>
+</dd></dl>
+
+</section>
+<section id="module-aukpy.queries">
+<span id="aukpy-queries-module"></span><h2>aukpy.queries module<a class="headerlink" href="#module-aukpy.queries" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.AndFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">AndFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">aukpy.queries.Filter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">aukpy.queries.Filter</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.AndFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.AndFilter.filter_1">
+<span class="sig-name descname"><span class="pre">filter_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a></em><a class="headerlink" href="#aukpy.queries.AndFilter.filter_1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.AndFilter.filter_2">
+<span class="sig-name descname"><span class="pre">filter_2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a></em><a class="headerlink" href="#aukpy.queries.AndFilter.filter_2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.AndFilter.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.AndFilter.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Between">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.Between" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Between.lower">
+<span class="sig-name descname"><span class="pre">lower</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.Between.lower" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Between.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Between.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Between.upper">
+<span class="sig-name descname"><span class="pre">upper</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.Between.upper" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.ColumnFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">ColumnFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.ColumnFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.ColumnFilter.column">
+<span class="sig-name descname"><span class="pre">column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aukpy.queries.ColumnFilter.column" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.ColumnFilter.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.ColumnFilter.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Empty">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Empty</span></span><a class="headerlink" href="#aukpy.queries.Empty" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Empty.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Empty.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.EqualsOrIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">EqualsOrIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.EqualsOrIn" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.EqualsOrIn.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.EqualsOrIn.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.EqualsOrIn.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.EqualsOrIn.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Filter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Filter</span></span><a class="headerlink" href="#aukpy.queries.Filter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Filter.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Filter.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.GE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">GE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.GE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.GE.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.GE.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.GE.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.GE.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.GT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">GT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.GT" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.GT.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.GT.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.GT.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.GT.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Is">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Is</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.Is" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Is.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Is.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Is.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#aukpy.queries.Is.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.IsIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">IsIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.IsIn" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.IsIn.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.IsIn.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.IsIn.values">
+<span class="sig-name descname"><span class="pre">values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.IsIn.values" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.IsTrue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">IsTrue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.IsTrue" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.IsTrue.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.IsTrue.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.LE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">LE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.LE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.LE.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.LE.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.LE.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.LE.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.LT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">LT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.LT" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.ColumnFilter" title="aukpy.queries.ColumnFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnFilter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.LT.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.LT.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.LT.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.LT.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.OrFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">OrFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">aukpy.queries.Filter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">aukpy.queries.Filter</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.OrFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.OrFilter.filter_1">
+<span class="sig-name descname"><span class="pre">filter_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a></em><a class="headerlink" href="#aukpy.queries.OrFilter.filter_1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.OrFilter.filter_2">
+<span class="sig-name descname"><span class="pre">filter_2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a></em><a class="headerlink" href="#aukpy.queries.OrFilter.filter_2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.OrFilter.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.OrFilter.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Query">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_filters:</span> <span class="pre">~typing.List[~aukpy.queries.Filter]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_filter:</span> <span class="pre">~typing.Optional[~aukpy.queries.Filter]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.Query" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A wrapper around a set of filters for each table</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.bbox">
+<span class="sig-name descname"><span class="pre">bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-180.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_long</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">180.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">90.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.bbox" title="Permalink to this definition"></a></dt>
+<dd><p>Filter for observations within a bounding box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.bcr">
+<span class="sig-name descname"><span class="pre">bcr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.bcr" title="Permalink to this definition"></a></dt>
+<dd><p>Filter by BCR code</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.breeding">
+<span class="sig-name descname"><span class="pre">breeding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">breeding_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.breeding" title="Permalink to this definition"></a></dt>
+<dd><p>Filter observations on breeding code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>breeding_code</strong> – A breeding code or codes to filter on</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.complete">
+<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.complete" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.country">
+<span class="sig-name descname"><span class="pre">country</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.country" title="Permalink to this definition"></a></dt>
+<dd><p>Filter by country name or country code.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.date">
+<span class="sig-name descname"><span class="pre">date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.date" title="Permalink to this definition"></a></dt>
+<dd><p>Filter for a specific set of dates
+At least one of <cite>after</cite> or <cite>before</cite> must not be None
+:param after: The start of the date range. Should be in year-month-day format. Defaults to None (no minimum date).
+:param before: The end of the date range. Should be in year-month-day format. Defaults to None (no maximum date).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'km'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'miles'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'km'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.distance" title="Permalink to this definition"></a></dt>
+<dd><p>Filter on the distance traveled during the observation period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimum</strong> – The minimum distance to accept. If 0, ‘stationary’ observations are also accepted.</p></li>
+<li><p><strong>maximum</strong> – The maximum distance to accept.</p></li>
+<li><p><strong>unit</strong> – The unit of distance, either ‘km’ or ‘miles’. Defaults to ‘km’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.duration">
+<span class="sig-name descname"><span class="pre">duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.duration" title="Permalink to this definition"></a></dt>
+<dd><p>Filter on the duration of the observation period, in minutes.
+:param minimum: The minimum duration time.
+:param maximum: The maximum duration time. Defaults to no upper bound.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.get_query">
+<span class="sig-name descname"><span class="pre">get_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Query.get_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.last_edited">
+<span class="sig-name descname"><span class="pre">last_edited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.last_edited" title="Permalink to this definition"></a></dt>
+<dd><p>Filter for edits between a range of dates.
+At least one of <cite>after</cite> or <cite>before</cite> must not be None
+:param after: The start of the date range. Should be in year-month-day format. Defaults to None (no minimum date).
+:param before: The end of the date range. Should be in year-month-day format. Defaults to None (no maximum date).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.project" title="Permalink to this definition"></a></dt>
+<dd><p>Filter for observations that are part of a particular project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project</strong> – The name of the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.protocol" title="Permalink to this definition"></a></dt>
+<dd><p>Filter for observations obtained using a particular protocol.
+The most common protocols are stationary, traveling, and casual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>protocol</strong> – The protocol or protocols to filter for</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Query.row_filter">
+<span class="sig-name descname"><span class="pre">row_filter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#aukpy.queries.Query.row_filter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Query.row_filters">
+<span class="sig-name descname"><span class="pre">row_filters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aukpy.queries.Query.row_filters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_conn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Query.run" title="Permalink to this definition"></a></dt>
+<dd><p>Execute the query, returning the raw data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.run_pandas">
+<span class="sig-name descname"><span class="pre">run_pandas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_conn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Connection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#aukpy.queries.Query.run_pandas" title="Permalink to this definition"></a></dt>
+<dd><p>Execute the query, returning the results as a dataframe</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.species">
+<span class="sig-name descname"><span class="pre">species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.species" title="Permalink to this definition"></a></dt>
+<dd><p>Filter by species name.
+Can be any of scientific name, common name, subspecies scientific name, or subspecies common name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>names</strong> – A name or names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.state">
+<span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.state" title="Permalink to this definition"></a></dt>
+<dd><p>Filter by state name or state code.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Query.time">
+<span class="sig-name descname"><span class="pre">time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'00:00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'23:59'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query"><span class="pre">Query</span></a></span></span><a class="headerlink" href="#aukpy.queries.Query.time" title="Permalink to this definition"></a></dt>
+<dd><p>Select observations started between the given hours.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>after</strong> – The minimum start time of the observation event. Should be a string in 24 hour format.</p></li>
+<li><p><strong>before</strong> – The maximum start time of the observation event. Should be a string in 24 hour format.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A query object that will select the relevant observations.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aukpy.queries.Query" title="aukpy.queries.Query">Query</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aukpy.queries.Wrapped">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">Wrapped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">aukpy.queries.Filter</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.Wrapped" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aukpy.queries.Wrapped.inner">
+<span class="sig-name descname"><span class="pre">inner</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#aukpy.queries.Filter" title="aukpy.queries.Filter"><span class="pre">Filter</span></a></em><a class="headerlink" href="#aukpy.queries.Wrapped.inner" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aukpy.queries.Wrapped.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.Wrapped.query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.bbox">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.bbox" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.bcr">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">bcr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.bcr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.breeding">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">breeding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.breeding" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.check_simple_type">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">check_simple_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TypeGuard</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#aukpy.queries.check_simple_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.complete">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.complete" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.country">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">country</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.country" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.date">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.date" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.distance">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.distance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.duration">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.duration" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.implicit_query">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">implicit_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.implicit_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.last_edited">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">last_edited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.last_edited" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.no_filter">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">no_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.no_filter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.project">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.project" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.protocol">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.protocol" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.species">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.species" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.state">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aukpy.queries.time">
+<span class="sig-prename descclassname"><span class="pre">aukpy.queries.</span></span><span class="sig-name descname"><span class="pre">time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aukpy.queries.time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-aukpy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aukpy" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Vincent Luczkow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

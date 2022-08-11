@@ -1,0 +1,45 @@
+tests package
+=============
+
+Submodules
+----------
+
+tests.db\_test module
+---------------------
+
+.. automodule:: tests.db_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tests.perf\_test module
+-----------------------
+
+.. automodule:: tests.perf_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tests.queries\_test module
+--------------------------
+
+.. automodule:: tests.queries_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tests.rebuild\_tests module
+---------------------------
+
+.. automodule:: tests.rebuild_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
