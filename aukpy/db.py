@@ -10,8 +10,6 @@ import sqlite3
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-from torch import not_equal
-
 from aukpy import config
 
 
