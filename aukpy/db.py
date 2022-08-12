@@ -3,6 +3,7 @@ The full dataset is distributed as a ~400GB csv file, much of which is redundant
 We store it in a fully normalized sqlite file instead, which reduces the size of the data
 and makes querying it much faster.
 """
+import numpy as np
 import pandas as pd
 import pickle
 import sqlite3
@@ -184,18 +185,25 @@ class TableWrapper:
         return values
 
     @classmethod
-    def insert(cls, df: pd.DataFrame, db: sqlite3.Connection) -> pd.DataFrame:
+    def insert(
+        cls, df: pd.DataFrame, db: sqlite3.Connection, cache=None
+    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
+        """Insert a dataframe into this table"""
         # Table specific preprocessing
+        if cache is None:
+            cache = {}
         sub_frame = cls.df_processing(df.loc[:, cls.columns])
+        sub_frame.fillna("", inplace=True)
         max_id = db.execute("SELECT MAX(id) FROM {}".format(cls.table_name)).fetchone()[
             0
         ]
         max_id = max_id if max_id is not None else 0
         # TODO: Optimization: Sort and drop_duplicates is probably faster.
         unique_values = sub_frame.groupby(sub_frame.columns.tolist()).groups
+        new_values = {k: v for k, v in unique_values.items() if k not in cache}
 
         # Table specific values processing (needed for IBA, BCR)
-        values = cls.values_processing([x for x in unique_values.keys()])
+        values = cls.values_processing([x for x in new_values.keys()])
         db.executemany(cls.insert_query, values)
         group_ids = {
             k: v
@@ -203,12 +211,13 @@ class TableWrapper:
                 unique_values.keys(), range(max_id + 1, max_id + len(values) + 1)
             )
         }
+        group_ids.update(cache)
         idx_id_map = {
             idx: group_ids[k] for k, indices in unique_values.items() for idx in indices
         }
         as_series = pd.Series(idx_id_map)
         df[f"{cls.table_name}_id"] = as_series
-        return df
+        return df, group_ids
 
 
 class LocationWrapper(TableWrapper):
@@ -396,8 +405,14 @@ WRAPPERS = (
 )
 
 
-def read_clean(input_path: Path) -> pd.DataFrame:
-    df = pd.read_csv(input_path, sep="\t")
+def clean_raw_obs(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean up a raw observation data csv.
+    - Rename columns to use underscores
+    - Drop any extra columns (frequently there's a blank column)
+
+    Args:
+        df: A dataframe directly read from an eBird observations file.
+    """
     renames = {x: x.lower().replace(" ", "_").replace("/", "_") for x in df.columns}
     df.rename(columns=renames, inplace=True)
 
@@ -406,6 +421,11 @@ def read_clean(input_path: Path) -> pd.DataFrame:
         if col not in HEADINGS:
             df.drop(col, axis=1, inplace=True)
     return df
+
+
+def read_clean(input_path: Path) -> pd.DataFrame:
+    df = pd.read_csv(input_path, sep="\t")
+    return clean_raw_obs(df)
 
 
 def build_db_pandas(
@@ -430,7 +450,7 @@ def build_db_pandas(
 
     # Store subtables
     for wrapper in WRAPPERS:
-        df = wrapper.insert(df, conn)
+        df, cache = wrapper.insert(df, conn)
 
     # Store main observations table
     used_columns = [y for x in WRAPPERS for y in x.columns]
@@ -441,10 +461,10 @@ def build_db_pandas(
 
 
 def build_db_incremental(
-    input_path: Path, output_path: Path, max_size: int = 1000000
+    input_path: Path, output_path: Path, max_size: int = 100000
 ) -> sqlite3.Connection:
     """Build a database incrementally.
-    Useful for very large observation files (>10GB).
+    Useful for very large observation files (e.g. any that don't easily fit in memory).
 
     Args:
         input_path (Path):                      Path to the CSV of observations.
@@ -459,8 +479,22 @@ def build_db_incremental(
         cache_meta = {"seek_to": 0}
 
     conn = sqlite3.connect(str(output_path.absolute()))
-    # Check for tables
+    create_tables(conn)
 
-    # Load subtables
+    # Load partial csv
+    subtable_cache = {}
+    for df in pd.read_csv(input_path, sep="\t", chunksize=max_size):
+        df = clean_raw_obs(df)
 
-    raise NotImplementedError
+        for wrapper in WRAPPERS:
+            if wrapper not in subtable_cache:
+                subtable_cache[wrapper.__name__] = {}
+            df, cache = wrapper.insert(df, conn, cache=subtable_cache[wrapper.__name__])
+            subtable_cache[wrapper.__name__] = cache
+
+        # Store main observations table
+        used_columns = [y for x in WRAPPERS for y in x.columns]
+        just_obs = df.drop(used_columns, axis=1)
+        ObservationWrapper.insert(just_obs, conn)
+        conn.commit()
+    return conn

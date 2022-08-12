@@ -4,7 +4,7 @@ from pathlib import Path
 from aukpy import db as auk_db
 
 
-from tests import SMALL, MEDIUM, LARGE
+from tests import SMALL, MEDIUM, LARGE, SMALL_DB
 
 
 def test_build_small():
@@ -15,6 +15,11 @@ def test_build_small():
 def test_build_medium():
     with NamedTemporaryFile() as output:
         db = auk_db.build_db_pandas(MEDIUM, Path(output.name))
+
+
+def test_build_incremental():
+    with NamedTemporaryFile() as output:
+        db = auk_db.build_db_incremental(MEDIUM, Path(output.name))
 
 
 @pytest.mark.skip
