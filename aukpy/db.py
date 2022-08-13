@@ -175,6 +175,7 @@ class TableWrapper:
     table_name: str
     columns: Tuple[str, ...]
     insert_query: str
+    unique_columns: Tuple[str, ...]
 
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -199,21 +200,25 @@ class TableWrapper:
         ]
         max_id = max_id if max_id is not None else 0
         # TODO: Optimization: Sort and drop_duplicates is probably faster.
-        unique_values = sub_frame.groupby(sub_frame.columns.tolist()).groups
-        new_values = {k: v for k, v in unique_values.items() if k not in cache}
+        unique_values = sub_frame.groupby(list(cls.unique_columns))
+        new_values = {k: v for k, v in unique_values if k not in cache}
 
         # Table specific values processing (needed for IBA, BCR)
-        values = cls.values_processing([x for x in new_values.keys()])
+        values = cls.values_processing(
+            [y.tolist() for x in new_values.values() for _, y in x.iterrows()]
+        )
         db.executemany(cls.insert_query, values)
         group_ids = {
             k: v
             for k, v in zip(
-                unique_values.keys(), range(max_id + 1, max_id + len(values) + 1)
+                new_values.keys(), range(max_id + 1, max_id + len(values) + 1)
             )
         }
         group_ids.update(cache)
         idx_id_map = {
-            idx: group_ids[k] for k, indices in unique_values.items() for idx in indices
+            idx: group_ids[k]
+            for k, indices in unique_values.groups.items()
+            for idx in indices
         }
         as_series = pd.Series(idx_id_map)
         df[f"{cls.table_name}_id"] = as_series
@@ -240,6 +245,7 @@ class LocationWrapper(TableWrapper):
     insert_query = """INSERT OR IGNORE INTO location_data
     ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    unique_columns = ("country", "state", "county", "locality_id")
 
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -268,6 +274,7 @@ class SpeciesWrapper(TableWrapper):
     insert_query = """INSERT OR IGNORE INTO species
     (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
     VALUES(?, ?, ?, ?, ?, ?, ?)"""
+    unique_columns = ("scientific_name", "subspecies_scientific_name")
 
 
 class BreedingWrapper(TableWrapper):
@@ -276,6 +283,7 @@ class BreedingWrapper(TableWrapper):
     insert_query = """INSERT OR IGNORE INTO breeding
     (breeding_code, breeding_category, behavior_code)
     VALUES(?, ?, ?)"""
+    unique_columns = ("breeding_code", "breeding_category", "behavior_code")
 
 
 class ProtocolWrapper(TableWrapper):
@@ -283,6 +291,7 @@ class ProtocolWrapper(TableWrapper):
     columns = ("protocol_type", "protocol_code", "project_code")
     insert_query = """INSERT OR IGNORE INTO protocol (protocol_type, protocol_code, project_code)
     VALUES(?, ?, ?)"""
+    unique_columns = ("protocol_code", "project_code")
 
 
 class SamplingWrapper(TableWrapper):
@@ -305,6 +314,7 @@ class SamplingWrapper(TableWrapper):
         (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, latitude, longitude, all_species_reported, number_observers)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
+    unique_columns = ("sampling_event_identifier",)
 
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -378,6 +388,8 @@ class ObservationWrapper(TableWrapper):
         ",\n".join(columns)
     )
 
+    unique_columns = ("global_unique_identifier",)
+
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
 
@@ -386,8 +398,9 @@ class ObservationWrapper(TableWrapper):
         df["global_unique_identifier"] = s
 
         not_empty = ~df["group_identifier"].isna()
-        s = df[not_empty]["group_identifier"].str[1:].astype(int)
-        df.loc[not_empty, "group_identifier"] = s
+        if len(df[not_empty]) > 0:
+            s = df[not_empty]["group_identifier"].str[1:].astype(int)
+            df.loc[not_empty, "group_identifier"] = s
 
         df["last_edited_date"] = (
             pd.to_datetime(df["last_edited_date"]).astype(int) // 1e9
