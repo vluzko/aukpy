@@ -37,6 +37,16 @@ def test_rebuild_small():
         compare_tables(df, original)
 
 
+def test_rebuild_incremental():
+    with NamedTemporaryFile() as output:
+        db = auk_db.build_db_incremental(SMALL, Path(output.name), max_size=1000)
+        q = queries.no_filter()
+
+        df = auk_db.undo_compression(q.run_pandas(db))
+        original = auk_db.read_clean(SMALL)
+        compare_tables(df, original)
+
+
 def test_rebuild_medium():
     with NamedTemporaryFile() as output:
         db = auk_db.build_db_pandas(MEDIUM, Path(output.name))

@@ -182,10 +182,6 @@ class TableWrapper:
         return df
 
     @classmethod
-    def values_processing(cls, values: List[Any]) -> List[Any]:
-        return values
-
-    @classmethod
     def insert(
         cls, df: pd.DataFrame, db: sqlite3.Connection, cache=None
     ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
@@ -194,35 +190,33 @@ class TableWrapper:
         if cache is None:
             cache = {}
         sub_frame = cls.df_processing(df.loc[:, cls.columns])
-        sub_frame.fillna("", inplace=True)
+        # sub_frame.fillna("", inplace=True)
         max_id = db.execute("SELECT MAX(id) FROM {}".format(cls.table_name)).fetchone()[
             0
         ]
         max_id = max_id if max_id is not None else 0
         # TODO: Optimization: Sort and drop_duplicates is probably faster.
-        unique_values = sub_frame.groupby(list(cls.unique_columns))
-        new_values = {k: v for k, v in unique_values if k not in cache}
+        # unique_values = sub_frame.drop_duplicates(list(cls.unique_columns))
+        unique_values = sub_frame.fillna("").groupby(list(cls.unique_columns))
+        groups_to_idx = sub_frame.fillna("").groupby(list(cls.unique_columns)).groups
+        new_idx = [idx[0] for g, idx in groups_to_idx.items() if g not in cache]
+        new_values = [y.tolist() for _, y in sub_frame.loc[new_idx].iterrows()]
 
-        # Table specific values processing (needed for IBA, BCR)
-        values = cls.values_processing(
-            [y.tolist() for x in new_values.values() for _, y in x.iterrows()]
+        db.executemany(cls.insert_query, new_values)
+        new_ids = dict(
+            zip(groups_to_idx.keys(), range(max_id + 1, max_id + len(new_values) + 1))
         )
-        db.executemany(cls.insert_query, values)
-        group_ids = {
-            k: v
-            for k, v in zip(
-                new_values.keys(), range(max_id + 1, max_id + len(values) + 1)
-            )
-        }
-        group_ids.update(cache)
+        assert all((not k in cache for k in new_ids.keys()))
+        cache.update(new_ids)
         idx_id_map = {
-            idx: group_ids[k]
-            for k, indices in unique_values.groups.items()
+            idx: cache[group]
+            for group, indices in groups_to_idx.items()
             for idx in indices
         }
+        assert len(idx_id_map) == len(df)
         as_series = pd.Series(idx_id_map)
         df[f"{cls.table_name}_id"] = as_series
-        return df, group_ids
+        return df, cache
 
 
 class LocationWrapper(TableWrapper):
@@ -275,6 +269,49 @@ class SpeciesWrapper(TableWrapper):
     (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
     VALUES(?, ?, ?, ?, ?, ?, ?)"""
     unique_columns = ("scientific_name", "subspecies_scientific_name")
+
+    @classmethod
+    def insert(
+        cls, df: pd.DataFrame, db: sqlite3.Connection, cache=None
+    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
+        """Insert a dataframe into this table"""
+        # Table specific preprocessing
+        if cache is None:
+            cache = {}
+        sub_frame = cls.df_processing(df.loc[:, cls.columns])
+        max_id = db.execute("SELECT MAX(id) FROM {}".format(cls.table_name)).fetchone()[
+            0
+        ]
+        max_id = max_id if max_id is not None else 0
+        # TODO: Optimization: Sort and drop_duplicates is probably faster.
+        missing_subspecies = sub_frame["subspecies_scientific_name"].isna()
+        idx_id_map = {}
+        for f, cols in (
+            (missing_subspecies, ["scientific_name"]),
+            (~missing_subspecies, list(cls.unique_columns)),
+        ):
+            unique_values = sub_frame[f].groupby(cols)
+            new_values = {k: v for k, v in unique_values if k not in cache}
+            values = [y.tolist() for x in new_values.values() for _, y in x.iterrows()]
+            db.executemany(cls.insert_query, values)
+            group_ids = {
+                k: v
+                for k, v in zip(
+                    new_values.keys(), range(max_id + 1, max_id + len(values) + 1)
+                )
+            }
+            group_ids.update(cache)
+            cache = group_ids
+            idx_id_map.update(
+                {
+                    idx: cache[k]
+                    for k, indices in unique_values.groups.items()
+                    for idx in indices
+                }
+            )
+        as_series = pd.Series(idx_id_map)
+        df[f"{cls.table_name}_id"] = as_series
+        return df, group_ids
 
 
 class BreedingWrapper(TableWrapper):
