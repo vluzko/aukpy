@@ -76,3 +76,10 @@ def test_rebuild_atlas():
         df = auk_db.undo_compression(q.run_pandas(db))
         original = auk_db.read_clean(WITH_ATLAS)
         compare_tables(df, original)
+
+
+def test_rebuild_random():
+    df = auk_db.read_clean(MEDIUM)
+    from tests import gen_mock_data
+
+    new_df = gen_mock_data.scramble_observations(df)
