@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 from pathlib import Path
 from aukpy import db as auk_db, queries
 
-from tests import SMALL, MEDIUM
+from tests import SMALL, MEDIUM, WITH_ATLAS
 
 
 def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
@@ -37,6 +37,16 @@ def test_rebuild_small():
         compare_tables(df, original)
 
 
+def test_rebuild_incremental():
+    with NamedTemporaryFile() as output:
+        db = auk_db.build_db_incremental(SMALL, Path(output.name), max_size=1000)
+        q = queries.no_filter()
+
+        df = auk_db.undo_compression(q.run_pandas(db))
+        original = auk_db.read_clean(SMALL)
+        compare_tables(df, original)
+
+
 def test_rebuild_medium():
     with NamedTemporaryFile() as output:
         db = auk_db.build_db_pandas(MEDIUM, Path(output.name))
@@ -44,4 +54,25 @@ def test_rebuild_medium():
         df = auk_db.undo_compression(q.run_pandas(db))
         original = auk_db.read_clean(MEDIUM)
 
+        compare_tables(df, original)
+
+
+def test_rebuild_incremental_medium():
+    with NamedTemporaryFile() as output:
+        db = auk_db.build_db_incremental(MEDIUM, Path(output.name), max_size=100000)
+        q = queries.no_filter()
+
+        df = auk_db.undo_compression(q.run_pandas(db))
+        original = auk_db.read_clean(MEDIUM)
+        compare_tables(df, original)
+
+
+def test_rebuild_atlas():
+
+    with NamedTemporaryFile() as output:
+        db = auk_db.build_db_pandas(WITH_ATLAS, Path(output.name))
+        q = queries.no_filter()
+
+        df = auk_db.undo_compression(q.run_pandas(db))
+        original = auk_db.read_clean(WITH_ATLAS)
         compare_tables(df, original)
