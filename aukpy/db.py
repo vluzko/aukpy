@@ -14,6 +14,8 @@ from typing import Dict, List, Optional, Tuple, Any
 from aukpy import config
 
 
+sqlite3.register_adapter(np.int64, int)
+
 HEADINGS = tuple(
     x.replace(" ", "_").lower()
     for x in (
@@ -166,7 +168,7 @@ def undo_compression(df: pd.DataFrame) -> pd.DataFrame:
     s = "G" + df[not_empty_gi]["group_identifier"].astype(float).astype(int).astype(str)
     df.loc[not_empty_gi, "group_identifier"] = s
 
-    df["last_edited_date"] = pd.to_datetime(df["last_edited_date"]).astype(int) * 1e9
+    df["last_edited_date"] = pd.to_datetime(df["last_edited_date"]).astype(int)
 
     return df
 
@@ -183,30 +185,29 @@ class TableWrapper:
 
     @classmethod
     def insert(
-        cls, df: pd.DataFrame, db: sqlite3.Connection, cache=None
+        cls,
+        df: pd.DataFrame,
+        db: sqlite3.Connection,
+        cache: Optional[Dict[Any, int]] = None,
     ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
         """Insert a dataframe into this table"""
         # Table specific preprocessing
         if cache is None:
             cache = {}
-        sub_frame = cls.df_processing(df.loc[:, cls.columns])
-        # sub_frame.fillna("", inplace=True)
+        sub_frame = cls.df_processing(df.loc[:, list(cls.columns)])
         max_id = db.execute("SELECT MAX(id) FROM {}".format(cls.table_name)).fetchone()[
             0
         ]
         max_id = max_id if max_id is not None else 0
         # TODO: Optimization: Sort and drop_duplicates is probably faster.
-        # unique_values = sub_frame.drop_duplicates(list(cls.unique_columns))
-        unique_values = sub_frame.fillna("").groupby(list(cls.unique_columns))
         groups_to_idx = sub_frame.fillna("").groupby(list(cls.unique_columns)).groups
-        new_idx = [idx[0] for g, idx in groups_to_idx.items() if g not in cache]
-        new_values = [y.tolist() for _, y in sub_frame.loc[new_idx].iterrows()]
+        new_idx = {g: idx[0] for g, idx in groups_to_idx.items() if g not in cache}
+        new_values = [sub_frame.loc[idx].tolist() for idx in new_idx.values()]
 
         db.executemany(cls.insert_query, new_values)
         new_ids = dict(
-            zip(groups_to_idx.keys(), range(max_id + 1, max_id + len(new_values) + 1))
+            zip(new_idx.keys(), range(max_id + 1, max_id + len(new_values) + 1))
         )
-        assert all((not k in cache for k in new_ids.keys()))
         cache.update(new_ids)
         idx_id_map = {
             idx: cache[group]
@@ -239,7 +240,7 @@ class LocationWrapper(TableWrapper):
     insert_query = """INSERT OR IGNORE INTO location_data
     ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-    unique_columns = ("country", "state", "county", "locality_id")
+    unique_columns = ("country", "state", "county", "locality_id", "atlas_block")
 
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -269,49 +270,6 @@ class SpeciesWrapper(TableWrapper):
     (taxonomic_order, category, common_name, scientific_name, subspecies_common_name, subspecies_scientific_name, taxon_concept_id)
     VALUES(?, ?, ?, ?, ?, ?, ?)"""
     unique_columns = ("scientific_name", "subspecies_scientific_name")
-
-    @classmethod
-    def insert(
-        cls, df: pd.DataFrame, db: sqlite3.Connection, cache=None
-    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
-        """Insert a dataframe into this table"""
-        # Table specific preprocessing
-        if cache is None:
-            cache = {}
-        sub_frame = cls.df_processing(df.loc[:, cls.columns])
-        max_id = db.execute("SELECT MAX(id) FROM {}".format(cls.table_name)).fetchone()[
-            0
-        ]
-        max_id = max_id if max_id is not None else 0
-        # TODO: Optimization: Sort and drop_duplicates is probably faster.
-        missing_subspecies = sub_frame["subspecies_scientific_name"].isna()
-        idx_id_map = {}
-        for f, cols in (
-            (missing_subspecies, ["scientific_name"]),
-            (~missing_subspecies, list(cls.unique_columns)),
-        ):
-            unique_values = sub_frame[f].groupby(cols)
-            new_values = {k: v for k, v in unique_values if k not in cache}
-            values = [y.tolist() for x in new_values.values() for _, y in x.iterrows()]
-            db.executemany(cls.insert_query, values)
-            group_ids = {
-                k: v
-                for k, v in zip(
-                    new_values.keys(), range(max_id + 1, max_id + len(values) + 1)
-                )
-            }
-            group_ids.update(cache)
-            cache = group_ids
-            idx_id_map.update(
-                {
-                    idx: cache[k]
-                    for k, indices in unique_values.groups.items()
-                    for idx in indices
-                }
-            )
-        as_series = pd.Series(idx_id_map)
-        df[f"{cls.table_name}_id"] = as_series
-        return df, group_ids
 
 
 class BreedingWrapper(TableWrapper):
@@ -367,12 +325,10 @@ class SamplingWrapper(TableWrapper):
 
         # Convert time to integer
         has_time = ~df["time_observations_started"].isna()
-        # split = df[has_time]["time_observations_started"].str.split(":")
         as_dt = pd.to_datetime(df[has_time]["time_observations_started"])
         seconds = (
             as_dt.dt.hour * 3600 + as_dt.dt.minute * 60 + as_dt.dt.second
         ).astype(int)
-        # seconds = split.apply(lambda x: int(x[0]) * 3600 + int(x[1]) * 60 + int(x[2]))
         df.loc[has_time, "time_observations_started"] = seconds
 
         return df
@@ -430,7 +386,6 @@ class ObservationWrapper(TableWrapper):
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
 
-        # Global unique identifier
         s = df["global_unique_identifier"].str[37:].astype(int)
         df["global_unique_identifier"] = s
 
@@ -466,7 +421,8 @@ def clean_raw_obs(df: pd.DataFrame) -> pd.DataFrame:
     renames = {x: x.lower().replace(" ", "_").replace("/", "_") for x in df.columns}
     df.rename(columns=renames, inplace=True)
 
-    # Drop any extra columns
+    # Drop any extra columns (there's often an extra blank column)
+    # TODO: Just drop blank columns
     for col in df.columns:
         if col not in HEADINGS:
             df.drop(col, axis=1, inplace=True)
@@ -500,7 +456,7 @@ def build_db_pandas(
 
     # Store subtables
     for wrapper in WRAPPERS:
-        df, cache = wrapper.insert(df, conn)
+        df, _ = wrapper.insert(df, conn)
 
     # Store main observations table
     used_columns = [y for x in WRAPPERS for y in x.columns]
@@ -532,12 +488,12 @@ def build_db_incremental(
     create_tables(conn)
 
     # Load partial csv
-    subtable_cache = {}
+    subtable_cache: Dict[str, Dict[Any, int]] = {}
     for df in pd.read_csv(input_path, sep="\t", chunksize=max_size):
         df = clean_raw_obs(df)
 
         for wrapper in WRAPPERS:
-            if wrapper not in subtable_cache:
+            if wrapper.__name__ not in subtable_cache:
                 subtable_cache[wrapper.__name__] = {}
             df, cache = wrapper.insert(df, conn, cache=subtable_cache[wrapper.__name__])
             subtable_cache[wrapper.__name__] = cache

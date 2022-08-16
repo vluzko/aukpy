@@ -438,11 +438,11 @@ class Query:
             vals = ()
         query = f"""SELECT {', '.join(db.DF_COLUMNS)} FROM
         observation
-        INNER JOIN sampling_event   ON sampling_event_id = sampling_event.id
-        INNER JOIN species          ON species_id = species.id
-        INNER JOIN location_data    ON location_data_id = location_data.id
-        INNER JOIN breeding         ON breeding_id = breeding.id
-        INNER JOIN protocol         ON protocol_id = protocol.id
+        LEFT JOIN sampling_event   ON sampling_event_id = sampling_event.id
+        LEFT JOIN species          ON species_id = species.id
+        LEFT JOIN location_data    ON location_data_id = location_data.id
+        LEFT JOIN breeding         ON breeding_id = breeding.id
+        LEFT JOIN protocol         ON protocol_id = protocol.id
         {where}"""
         return query, vals
 
