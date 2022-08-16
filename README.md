@@ -6,4 +6,4 @@ A reimplementation of [auk](https://github.com/CornellLabofOrnithology/auk) in P
 
 Note that this is *not* a direct port: aukpy does not use `awk` to access data. Instead it provides a similar API, but uses sqlite to index and query the dataset.
 
-For detailed usage, [see the full documentation]()
+For detailed usage, [see the full documentation](https://aukpy.readthedocs.io/en/latest/)
