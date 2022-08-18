@@ -13,14 +13,13 @@ from typing import (
     Tuple,
     Any,
     Literal,
-    TypeGuard,
 )
 
 
 Distance = Literal["km", "miles"]
 
 
-def check_simple_type(value) -> TypeGuard[Union[str, int, float, bool]]:
+def check_simple_type(value) -> bool:
     return (
         isinstance(value, str)
         or isinstance(value, float)

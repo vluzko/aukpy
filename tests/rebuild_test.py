@@ -1,17 +1,26 @@
 import pandas as pd
+import pytest
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from aukpy import db as auk_db, queries
 
-from tests import SMALL, MEDIUM, WITH_ATLAS
+from tests import (
+    SMALL_MOCKED,
+    SMALL,
+    MEDIUM,
+    WITH_ATLAS,
+    M_MEDIUM,
+    M_SMALL,
+    SKIP_NON_MOCKED,
+)
 
 
 def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
     df.sort_values(by="global_unique_identifier", inplace=True)
-    df.index = range(len(df))
+    df.index = range(len(df))  # type: ignore
     df.fillna("", inplace=True)
     original.sort_values(by="global_unique_identifier", inplace=True)
-    original.index = range(len(original))
+    original.index = range(len(original))  # type: ignore
     original.fillna("", inplace=True)
 
     assert len(df) == len(original)
@@ -27,52 +36,58 @@ def compare_tables(df: pd.DataFrame, original: pd.DataFrame):
         assert comp.all()
 
 
+def run_rebuild(obs_path: Path, incremental: bool = False):
+    with NamedTemporaryFile() as output:
+        if incremental:
+            db = auk_db.build_db_incremental(obs_path, Path(output.name))
+        else:
+            db = auk_db.build_db_pandas(obs_path, Path(output.name))
+        q = queries.no_filter()
+
+        df = auk_db.undo_compression(q.run_pandas(db))
+        original = auk_db.read_clean(obs_path)
+        compare_tables(df, original)
+
+
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
 def test_rebuild_small():
-    with NamedTemporaryFile() as output:
-        db = auk_db.build_db_pandas(SMALL, Path(output.name))
-        q = queries.no_filter()
-
-        df = auk_db.undo_compression(q.run_pandas(db))
-        original = auk_db.read_clean(SMALL)
-        compare_tables(df, original)
+    run_rebuild(SMALL)
 
 
-def test_rebuild_incremental():
-    with NamedTemporaryFile() as output:
-        db = auk_db.build_db_incremental(SMALL, Path(output.name), max_size=1000)
-        q = queries.no_filter()
-
-        df = auk_db.undo_compression(q.run_pandas(db))
-        original = auk_db.read_clean(SMALL)
-        compare_tables(df, original)
-
-
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
 def test_rebuild_medium():
-    with NamedTemporaryFile() as output:
-        db = auk_db.build_db_pandas(MEDIUM, Path(output.name))
-        q = queries.no_filter()
-        df = auk_db.undo_compression(q.run_pandas(db))
-        original = auk_db.read_clean(MEDIUM)
-
-        compare_tables(df, original)
+    run_rebuild(MEDIUM)
 
 
-def test_rebuild_incremental_medium():
-    with NamedTemporaryFile() as output:
-        db = auk_db.build_db_incremental(MEDIUM, Path(output.name), max_size=100000)
-        q = queries.no_filter()
-
-        df = auk_db.undo_compression(q.run_pandas(db))
-        original = auk_db.read_clean(MEDIUM)
-        compare_tables(df, original)
-
-
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
 def test_rebuild_atlas():
+    run_rebuild(WITH_ATLAS)
 
-    with NamedTemporaryFile() as output:
-        db = auk_db.build_db_pandas(WITH_ATLAS, Path(output.name))
-        q = queries.no_filter()
 
-        df = auk_db.undo_compression(q.run_pandas(db))
-        original = auk_db.read_clean(WITH_ATLAS)
-        compare_tables(df, original)
+def test_rebuild_mocked_small():
+    run_rebuild(M_SMALL)
+
+
+@pytest.mark.skip
+def test_rebuild_mocked_medium():
+    run_rebuild(M_MEDIUM)
+
+
+def test_rebuild_mocked_sub():
+    for p in SMALL_MOCKED:
+        run_rebuild(p)
+
+
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
+def test_rebuild_incremental():
+    run_rebuild(SMALL, incremental=True)
+
+
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
+def test_rebuild_incremental_medium():
+    run_rebuild(MEDIUM, incremental=True)
+
+
+@pytest.mark.skip
+def test_rebuild_incremental_mocked():
+    run_rebuild(M_MEDIUM, incremental=True)
