@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS location_data (
     state_code text,
     county text,
     county_code text,
+    longitude float,
+    latitude float,
     locality text,
     locality_id integer,
     locality_type text,
@@ -13,7 +15,7 @@ CREATE TABLE IF NOT EXISTS location_data (
     atlas_block text,
     bcr_code integer,
     iba_code text,
-    UNIQUE(country, country_code, state, state_code, county, county_code, locality, locality_id, locality_type, usfws_code, atlas_block)
+    UNIQUE(country, state, county, locality_id, usfws_code, atlas_block, longitude, latitude)
 );
 
 CREATE TABLE IF NOT EXISTS bcrcode (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
@@ -63,8 +65,6 @@ CREATE TABLE IF NOT EXISTS sampling_event (
     effort_area_ha float,
     duration_minutes integer,
     trip_comments text,
-    latitude float,
-    longitude float,
     all_species_reported integer,
     number_observers integer,
     UNIQUE(sampling_event_identifier)
