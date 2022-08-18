@@ -67,12 +67,13 @@ CREATE TABLE IF NOT EXISTS sampling_event (
     trip_comments text,
     all_species_reported integer,
     number_observers integer,
-    UNIQUE(sampling_event_identifier)
+    location_data_id integer,
+    UNIQUE(sampling_event_identifier),
+    FOREIGN KEY (location_data_id) REFERENCES location_data(id)
 );
 
 CREATE TABLE IF NOT EXISTS observation (
     id integer PRIMARY KEY,
-    location_data_id integer NOT NULL,
     species_id integer NOT NULL,
     breeding_id integer,
     protocol_id integer,
@@ -91,6 +92,5 @@ CREATE TABLE IF NOT EXISTS observation (
     FOREIGN KEY (sampling_event_id) REFERENCES sampling_event(id),
     FOREIGN KEY (species_id) REFERENCES species(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
-    FOREIGN KEY (location_data_id) REFERENCES location_data(id),
     FOREIGN KEY (protocol_id) REFERENCES protocol(id)
 );
