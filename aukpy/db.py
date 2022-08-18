@@ -229,6 +229,8 @@ class LocationWrapper(TableWrapper):
         "state_code",
         "county",
         "county_code",
+        "longitude",
+        "latitude",
         "locality",
         "locality_id",
         "locality_type",
@@ -238,9 +240,17 @@ class LocationWrapper(TableWrapper):
         "iba_code",
     )
     insert_query = """INSERT OR IGNORE INTO location_data
-    ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
-    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-    unique_columns = ("country", "state", "county", "locality_id", "atlas_block")
+    ('country', 'country_code', 'state', 'state_code', 'county', 'county_code', 'longitude', 'latitude', 'locality', 'locality_id', 'locality_type', 'usfws_code', 'atlas_block', 'bcr_code', 'iba_code')
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    unique_columns = (
+        "country",
+        "state",
+        "county",
+        "locality_id",
+        "atlas_block",
+        "longitude",
+        "latitude",
+    )
 
     @classmethod
     def df_processing(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -300,14 +310,12 @@ class SamplingWrapper(TableWrapper):
         "effort_area_ha",
         "duration_minutes",
         "trip_comments",
-        "latitude",
-        "longitude",
         "all_species_reported",
         "number_observers",
     )
     insert_query = """INSERT OR IGNORE INTO sampling_event
-        (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, latitude, longitude, all_species_reported, number_observers)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, all_species_reported, number_observers)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     unique_columns = ("sampling_event_identifier",)
 
