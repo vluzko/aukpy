@@ -421,26 +421,19 @@ class ObservationWrapper(TableWrapper):
 
         return df
 
-    # @classmethod
-    # def insert(
-    #     cls,
-    #     df: pd.DataFrame,
-    #     db: sqlite3.Connection,
-    #     cache: Optional[Dict[Any, int]] = None, ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
-    #     # Table specific preprocessing
-    #     if cache is None:
-    #         cache = {}
-    #     # sub_frame = cls.df_processing(df.loc[:, list(cls.columns)])
-    #     # max_id = max_id if max_id is not None else 0
-    #     # TODO: Optimization: Sort and drop_duplicates is probably faster.
-    #     # groups_to_idx = sub_frame.fillna("").groupby(list(cls.unique_columns)).groups
-    #     # new_idx = {g: idx[0] for g, idx in groups_to_idx.items() if g not in cache}
-    #     # new_values = [sub_frame.loc[idx].tolist() for idx in new_idx.values()]
-
-    #     import pdb
-    #     pdb.set_trace()
-    #     # db.executemany(cls.insert_query, new_values)
-    #     return df, cache
+    @classmethod
+    def insert(
+        cls,
+        df: pd.DataFrame,
+        db: sqlite3.Connection,
+        cache: Optional[Dict[Any, int]] = None,
+    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
+        # Table specific preprocessing
+        if cache is None:
+            cache = {}
+        sub_frame = cls.df_processing(df.loc[:, list(cls.columns)])
+        sub_frame.to_sql("observation", con=db, if_exists="append", index=False)
+        return df, cache
 
 
 WRAPPERS = (
