@@ -88,5 +88,6 @@ def test_rebuild_incremental_medium():
     run_rebuild(MEDIUM, incremental=True)
 
 
+@pytest.mark.skip
 def test_rebuild_incremental_mocked():
     run_rebuild(M_MEDIUM, incremental=True)
