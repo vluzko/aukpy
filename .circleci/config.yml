@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: pip install .
+          command: pip install .[tests]
       # - python/install-packages:
       #     pkg-manager: pip
       - run:
