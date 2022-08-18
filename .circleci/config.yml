@@ -6,6 +6,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
+
   build_and_test:
     executor: python/default
     steps:
@@ -13,8 +14,9 @@ jobs:
       - run:
           name: Install
           command: pip install .[tests]
-      # - python/install-packages:
-      #     pkg-manager: pip
+      - run:
+          name: Type checking
+          command: mypy aukpy/
       - run:
           name: Run tests
           command: python -m pytest
