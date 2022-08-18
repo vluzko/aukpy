@@ -28,7 +28,7 @@ def check_usage(csv_file: Path):
     print(f"Size of observation: {res}")
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_data_usage():
     for csv_file in (SMALL, MEDIUM):
         check_usage(csv_file)
