@@ -11,8 +11,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install
-        command: pip install .
+          name: Install
+          command: pip install .
       # - python/install-packages:
       #     pkg-manager: pip
       - run:
