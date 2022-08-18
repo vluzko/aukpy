@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from aukpy import db
 
-from tests.db_test import SMALL, MEDIUM
+from tests.db_test import SMALL, MEDIUM, SKIP_NON_MOCKED
 
 
 def check_usage(csv_file: Path):
@@ -28,7 +28,10 @@ def check_usage(csv_file: Path):
     print(f"Size of observation: {res}")
 
 
-@pytest.mark.skip
+@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
 def test_data_usage():
-    for csv_file in (SMALL, MEDIUM):
+    for csv_file in (
+        SMALL,
+        MEDIUM,
+    ):
         check_usage(csv_file)

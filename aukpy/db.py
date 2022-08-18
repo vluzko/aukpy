@@ -9,7 +9,8 @@ import pickle
 import sqlite3
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from time import time
+from typing import Dict, Optional, Tuple, Any
 
 from aukpy import config
 
@@ -217,6 +218,7 @@ class TableWrapper:
         assert len(idx_id_map) == len(df)
         as_series = pd.Series(idx_id_map)
         df[f"{cls.table_name}_id"] = as_series
+        df.drop(list(cls.columns), axis=1, inplace=True)
         return df, cache
 
 
@@ -312,10 +314,11 @@ class SamplingWrapper(TableWrapper):
         "trip_comments",
         "all_species_reported",
         "number_observers",
+        "location_data_id",
     )
     insert_query = """INSERT OR IGNORE INTO sampling_event
-        (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, all_species_reported, number_observers)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (sampling_event_identifier, observation_date, time_observations_started, observer_id, effort_distance_km, effort_area_ha, duration_minutes, trip_comments, all_species_reported, number_observers, location_data_id)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     unique_columns = ("sampling_event_identifier",)
 
@@ -341,11 +344,22 @@ class SamplingWrapper(TableWrapper):
 
         return df
 
+    @classmethod
+    def insert(
+        cls,
+        df: pd.DataFrame,
+        db: sqlite3.Connection,
+        cache: Optional[Dict[Any, int]] = None,
+    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
+
+        df, cache = LocationWrapper.insert(df, db, cache=cache)
+        return super().insert(df, db, cache=cache)
+
 
 class ObservationWrapper(TableWrapper):
     table_name = "observation"
     columns = (
-        "location_data_id",
+        # "location_data_id",
         "species_id",
         "breeding_id",
         "protocol_id",
@@ -369,7 +383,6 @@ class ObservationWrapper(TableWrapper):
     )
     VALUES
     (
-        ?,
         ?,
         ?,
         ?,
@@ -408,9 +421,22 @@ class ObservationWrapper(TableWrapper):
 
         return df
 
+    @classmethod
+    def insert(
+        cls,
+        df: pd.DataFrame,
+        db: sqlite3.Connection,
+        cache: Optional[Dict[Any, int]] = None,
+    ) -> Tuple[pd.DataFrame, Dict[Any, int]]:
+        # Table specific preprocessing
+        if cache is None:
+            cache = {}
+        sub_frame = cls.df_processing(df.loc[:, list(cls.columns)])
+        sub_frame.to_sql("observation", con=db, if_exists="append", index=False)
+        return df, cache
+
 
 WRAPPERS = (
-    LocationWrapper,
     SpeciesWrapper,
     BreedingWrapper,
     ProtocolWrapper,
@@ -467,9 +493,7 @@ def build_db_pandas(
         df, _ = wrapper.insert(df, conn)
 
     # Store main observations table
-    used_columns = [y for x in WRAPPERS for y in x.columns]
-    just_obs = df.drop(used_columns, axis=1)
-    ObservationWrapper.insert(just_obs, conn)
+    ObservationWrapper.insert(df, conn)
     conn.commit()
     return conn
 
@@ -507,8 +531,6 @@ def build_db_incremental(
             subtable_cache[wrapper.__name__] = cache
 
         # Store main observations table
-        used_columns = [y for x in WRAPPERS for y in x.columns]
-        just_obs = df.drop(used_columns, axis=1)
-        ObservationWrapper.insert(just_obs, conn)
+        ObservationWrapper.insert(df, conn)
         conn.commit()
     return conn
