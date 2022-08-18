@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 import sqlite3
 from aukpy import queries
 
