@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 import numpy as np
 import pandas as pd
@@ -63,3 +64,11 @@ def subsample(df: pd.DataFrame, num_rows: int = 100000) -> pd.DataFrame:
     assert len(df) >= num_rows
     shuffle = np.random.permutation(df.index)
     return df.loc[shuffle].iloc[:num_rows]
+
+
+def extract_chunks(path: Path, num_chunks: int, num_rows: int=100000) -> List[pd.DataFrame]:
+    """Extract multiple subframes from one large dataset.
+    Used to extract random chunks of data from very large observation files.
+    """
+
+    reader = pd.read_csv(path, sep='\t', chunksize=num_rows)

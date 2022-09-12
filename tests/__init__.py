@@ -7,7 +7,6 @@ SMALL = TEST_DATA / "small" / "observations.txt"
 MEDIUM = TEST_DATA / "medium" / "observations.txt"
 LARGE = TEST_DATA / "large" / "observations.txt"
 # A clean dataframe with non empty atlas codes
-WITH_ATLAS = TEST_DATA / "with_atlas.csv"
 
 # We skip any unmocked tests if the file doesn't exist
 SKIP_NON_MOCKED = {
@@ -32,19 +31,19 @@ SMALL_MOCKED = (M_SMALL1, M_SMALL2, M_SMALL3)
 def generate_mock_data(obs_path: Path, out_path: Path):
     """Convert the real medium sized dataset to a fake dataset"""
     from aukpy import db
-    from tests import gen_mock_data
+    from tests import data_utils
 
     df = db.read_clean(obs_path)
-    new_df = gen_mock_data.scramble_observations(df)
+    new_df = data_utils.scramble_observations(df)
     new_df.to_csv(out_path, index=False, sep="\t")
 
 
 def generate_subsampled(obs_path: Path, out_path: Path, num_rows: int = 10000):
     from aukpy import db
-    from tests import gen_mock_data
+    from tests import data_utils
 
     df = db.read_clean(obs_path)
-    subsampled = gen_mock_data.subsample(df, num_rows=num_rows)
+    subsampled = data_utils.subsample(df, num_rows=num_rows)
     subsampled.to_csv(out_path, index=False, sep="\t")
 
 

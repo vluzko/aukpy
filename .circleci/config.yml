@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: pip install .[tests]
+          command: pip install .[dev]
       - run:
           name: Type checking
           command: mypy aukpy/
