@@ -10,7 +10,7 @@ import sqlite3
 
 from pathlib import Path
 from time import time
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any
 
 from aukpy import config
 
@@ -521,7 +521,14 @@ def build_db_incremental(
 
     # Load partial csv
     subtable_cache: Dict[str, Dict[Any, int]] = {}
-    for df in pd.read_csv(input_path, sep="\t", chunksize=max_size):
+    skipped = []
+
+    def on_skip(l):
+        skipped.append(l)
+
+    for df in pd.read_csv(
+        input_path, sep="\t", chunksize=max_size, engine="c", on_bad_lines="warn"
+    ):
         df = clean_raw_obs(df)
 
         for wrapper in WRAPPERS:
@@ -533,4 +540,5 @@ def build_db_incremental(
         # Store main observations table
         ObservationWrapper.insert(df, conn)
         conn.commit()
+    print(skipped)
     return conn

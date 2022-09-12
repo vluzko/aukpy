@@ -8,7 +8,6 @@ from tests import (
     SMALL_MOCKED,
     SMALL,
     MEDIUM,
-    WITH_ATLAS,
     M_MEDIUM,
     M_SMALL,
     SKIP_NON_MOCKED,
@@ -57,11 +56,6 @@ def test_rebuild_small():
 @pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
 def test_rebuild_medium():
     run_rebuild(MEDIUM)
-
-
-@pytest.mark.skipif(**SKIP_NON_MOCKED)  # type: ignore
-def test_rebuild_atlas():
-    run_rebuild(WITH_ATLAS)
 
 
 def test_rebuild_mocked_small():

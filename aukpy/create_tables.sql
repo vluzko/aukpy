@@ -18,10 +18,6 @@ CREATE TABLE IF NOT EXISTS location_data (
     UNIQUE(country, state, county, locality_id, usfws_code, atlas_block, longitude, latitude)
 );
 
-CREATE TABLE IF NOT EXISTS bcrcode (id integer PRIMARY KEY, bcr_code text, UNIQUE(bcr_code));
-
-CREATE TABLE IF NOT EXISTS ibacode (id integer PRIMARY KEY, iba_code text, UNIQUE(iba_code));
-
 CREATE TABLE IF NOT EXISTS species (
     id integer PRIMARY KEY,
     taxonomic_order integer,
@@ -89,6 +85,7 @@ CREATE TABLE IF NOT EXISTS observation (
     reason text,
     species_comments text,
     exotic_code text,
+    UNIQUE(global_unique_identifier),
     FOREIGN KEY (sampling_event_id) REFERENCES sampling_event(id),
     FOREIGN KEY (species_id) REFERENCES species(id),
     FOREIGN KEY (breeding_id) REFERENCES breeding(id),
