@@ -13,13 +13,26 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: pip install .[dev]
+          command: |
+            pip install .[dev]
+            echo $HOME
       - run:
           name: Type checking
           command: mypy aukpy/
       - run:
           name: Run tests
-          command: python -m pytest
+          command: |
+            coverage run -m pytest
+            coverage report
+            coverage html  # open htmlcov/index.html in a browser
+      - store_artifacts:
+          path: htmlcov
+      - run:
+          name: Upload coverage
+          command: |
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
