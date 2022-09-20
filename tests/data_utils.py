@@ -66,9 +66,11 @@ def subsample(df: pd.DataFrame, num_rows: int = 100000) -> pd.DataFrame:
     return df.loc[shuffle].iloc[:num_rows]
 
 
-def extract_chunks(path: Path, num_chunks: int, num_rows: int=100000) -> List[pd.DataFrame]:
+def extract_chunks(
+    path: Path, num_chunks: int, num_rows: int = 100000
+) -> List[pd.DataFrame]:
     """Extract multiple subframes from one large dataset.
     Used to extract random chunks of data from very large observation files.
     """
 
-    reader = pd.read_csv(path, sep='\t', chunksize=num_rows)
+    reader = pd.read_csv(path, sep="\t", chunksize=num_rows)

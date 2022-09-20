@@ -499,7 +499,7 @@ def build_db_pandas(
 
 
 def build_db_incremental(
-    input_path: Path, output_path: Optional[Path]=None, max_size: int = 100000
+    input_path: Path, output_path: Optional[Path] = None, max_size: int = 100000
 ) -> sqlite3.Connection:
     """Build a database incrementally.
     Useful for very large observation files (e.g. any that don't easily fit in memory).
