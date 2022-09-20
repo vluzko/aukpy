@@ -1,6 +1,7 @@
 # aukpy
 [![CircleCI](https://circleci.com/gh/vluzko/aukpy.svg?style=shield)](https://circleci.com/gh/vluzko/aukpy)
 [![Documentation Status](https://readthedocs.org/projects/aukpy/badge/?version=latest)](https://aukpy.readthedocs.io/en/latest/?badge=latest)
+[![Coverage](docs/coverage.svg)]
 
 A reimplementation of [auk](https://github.com/CornellLabofOrnithology/auk) in Python.
 
