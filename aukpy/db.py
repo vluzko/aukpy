@@ -499,7 +499,7 @@ def build_db_pandas(
 
 
 def build_db_incremental(
-    input_path: Path, output_path: Path, max_size: int = 100000
+    input_path: Path, output_path: Optional[Path]=None, max_size: int = 100000
 ) -> sqlite3.Connection:
     """Build a database incrementally.
     Useful for very large observation files (e.g. any that don't easily fit in memory).
@@ -509,6 +509,8 @@ def build_db_incremental(
         output_path (Path):                     Location to store the database.
         max_lines (int, optional):              The maximum number of bytes of the CSV to read at a time.
     """
+    if output_path is None:
+        output_path = config.DATA_HOME / f"{input_path.stem}.sqlite"
     cache_meta_path = config.DATA_HOME / f"{output_path.stem}_meta.pkl"
 
     if cache_meta_path.is_file():
