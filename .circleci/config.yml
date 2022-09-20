@@ -6,8 +6,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-
-  build_and_test:
+  build_and_test: &test-template
     executor: python/default
     steps:
       - checkout
@@ -34,6 +33,9 @@ jobs:
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
             ./codecov
+  test_3.8:
+    <<: *test_template
+    executor: python/3.8
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
