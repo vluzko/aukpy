@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 import pandas as pd
 
 from aukpy import config
@@ -24,10 +24,30 @@ def load_usfws() -> pd.DataFrame:
     return pd.read_csv(config.USFWS_CODES, sep="\t")
 
 
-def get_all_species(clade_name: str) -> pd.DataFrame:
+def get_all_species(clade_name: str) -> Set[str]:
     """Get all species in a clade"""
     taxonomy = load_taxonomy()
-    raise NotImplementedError
+    relevant = taxonomy[taxonomy["category"] == "species"]
+    fmt_name = clade_name.lower().strip()
+
+    if fmt_name in relevant["order"].values:
+        filt = relevant["order"] == fmt_name
+    elif fmt_name in relevant["family"].values:
+        filt = relevant["family"] == fmt_name
+        # return list(relevant.loc[filt, "sci_name"].unique())  # type: ignore
+    else:
+        g_and_s = taxonomy["sci_name"].str.split(" ")
+        taxonomy["genus"] = g_and_s.str[0]
+        taxonomy["species"] = g_and_s.str[1]
+        relevant = taxonomy[taxonomy["category"] == "species"]
+
+        if fmt_name in relevant["genus"].values:
+            filt = relevant["genus"] == fmt_name
+        else:
+            return set()
+
+    species = relevant.loc[filt, "sci_name"].unique()
+    return set(species)  # type: ignore
 
 
 def get_parent_taxon(name: str) -> Optional[str]:

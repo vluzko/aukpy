@@ -35,3 +35,17 @@ def test_get_child_taxa():
         "immer",
         "adamsii",
     ]
+
+
+def test_get_species():
+    loons = {
+        "gavia stellata",
+        "gavia arctica",
+        "gavia pacifica",
+        "gavia immer",
+        "gavia adamsii",
+    }
+
+    assert utils.get_all_species("gaviiformes") == loons
+    assert utils.get_all_species("gaviidae") == loons
+    assert utils.get_all_species("gavia") == loons
