@@ -34,6 +34,9 @@ def get_parent_taxon(name: str) -> Optional[str]:
     """Given the name of a taxon, get the parent taxon.
     Performance could be improved by caching more of the taxonomy but there's not much point yet.
 
+    Args:
+        name: The name of the taxon. Case-insensitive.
+
     Examples:
         >>> get_parent_taxon("Passeriformes")
         "Aves"
@@ -57,24 +60,51 @@ def get_parent_taxon(name: str) -> Optional[str]:
             # Check genus
             # We ignore the SettingWithCopyWarning because we're throwing out dataframe immediately.
             # Copying it would be a waste.
+            prev = pd.options.mode.chained_assignment
             pd.options.mode.chained_assignment = None  # type: ignore
             proper_species = taxonomy.loc[taxonomy["category"] == "species", :]
             proper_species["genus"] = proper_species["sci_name"].str.split(" ").str[0]
             g_to_f = proper_species.groupby("genus")["family"].first()
+            # Return to previous setting
+            pd.options.mode.chained_assignment = prev
             return g_to_f.get(fmt_name, None)  # type: ignore
 
 
-def get_child_taxa(name: str) -> List[str]:
+def get_child_taxa(name: str) -> Optional[List[str]]:
     """Given the name of a taxon, get the child taxa.
+
+    Args:
+        name: The name of the taxon. Case-insensitive
 
     Examples:
         >>> get_child_taxa("Falconiformes")
-        ["Falconidae"]
+        ["falconidae"]
+        >>> get_child_taxa("gaviidae")
+        ["gavia"]
+        >>> get_child_taxa('gavia')
+        ['stellata', 'arctica', 'pacifica', 'immer', 'adamsii']
     """
     taxonomy = load_taxonomy()
+    fmt_name = name.lower().strip()
     # Check orders
-    orders = taxonomy.groupby("orders")["family"].unique()
-    import pdb
+    orders = taxonomy.groupby("order")["family"].unique()
+    if fmt_name in orders:
+        return list(orders[fmt_name])
+    else:
+        # Check family
+        g_and_s = taxonomy["sci_name"].str.split(" ")
+        taxonomy["genus"] = g_and_s.str[0]
+        taxonomy["species"] = g_and_s.str[1]
+        relevant = taxonomy[taxonomy["category"] == "species"]
 
-    pdb.set_trace()
-    raise NotImplementedError
+        f_to_g = relevant.groupby("family")["genus"].unique()
+        if fmt_name in f_to_g:
+            return list(f_to_g[fmt_name])
+        else:
+            # Check genus
+            g_to_s = relevant.groupby("genus")["species"].unique()
+            res = g_to_s.get(fmt_name, None)
+            if res is not None:
+                return list(res)  # type: ignore
+            else:
+                return None
