@@ -74,3 +74,4 @@ def extract_chunks(
     """
 
     reader = pd.read_csv(path, sep="\t", chunksize=num_rows)
+    raise NotImplementedError

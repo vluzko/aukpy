@@ -9,5 +9,5 @@ dist/
 .idea/
 .hypothesis/
 
-data/
+tests/data/
 tests/mocked/medium.txt

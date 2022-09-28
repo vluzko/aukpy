@@ -1,13 +1,16 @@
 import datetime
-from functools import reduce
+from functools import reduce, wraps
 from aukpy import db
 import pandas as pd
 import sqlite3
 from dataclasses import dataclass, field, replace as dc_replace
 from typing import (
+    Callable,
     Iterable,
     List,
     Optional,
+    Protocol,
+    TypeVar,
     Union,
     Tuple,
     Any,
@@ -170,6 +173,14 @@ class Wrapped(Filter):
     def query(self) -> Tuple[str, Tuple[Any, ...]]:
         sub_q, sub_v = self.inner.query()
         return f"({sub_q})", sub_v
+
+
+@dataclass
+class NotNull(Filter):
+    column: str
+
+    def query(self) -> Tuple[str, Tuple[Any, ...]]:
+        return f"{self.column} IS NOT NULL", ()
 
 
 @dataclass
@@ -456,10 +467,10 @@ class Query:
         return pd.read_sql_query(query, db_conn, params=vals)
 
 
-def implicit_query(f):
+def implicit_query(f: Callable[..., Query]) -> Callable[..., Query]:
     name = f.__name__
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Query:
         new_query = Query()
         method = getattr(new_query, name)
         return method(*args, **kwargs)
@@ -473,22 +484,22 @@ def no_filter():
 
 
 @implicit_query
-def species(names: Union[str, Iterable[str]]):
+def species(names: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def country(names: Union[str, Iterable[str]]) -> Query:
+def country(names: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def state(names: Union[str, Iterable[str]]) -> Query:
+def state(names: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def bcr(code: Union[str, Iterable[str]]) -> Query:
+def bcr(code: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
@@ -498,52 +509,70 @@ def bbox(
     min_lat: float = -90.0,
     max_long: float = 180.0,
     max_lat: float = 90.0,
-) -> Query:
+) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def date(after: Optional[str] = None, before: Optional[str] = None) -> Query:
+def date(after: Optional[str] = None, before: Optional[str] = None) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def last_edited() -> Query:
+def last_edited() -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def protocol(protocol: Union[str, Iterable[str]]) -> Query:
+def protocol(protocol: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def project(project: Union[str, Iterable[str]]) -> Query:
+def project(project: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def time(after: str = "00:00", before: str = "23:59") -> Query:
+def time(after: str = "00:00", before: str = "23:59") -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def duration(minimum: float = 0, maximum: Optional[float] = None) -> Query:
+def duration(minimum: float = 0, maximum: Optional[float] = None) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
 def distance(
     minimum: float = 0.0, maximum: float = 1e9, unit: Distance = "km"
-) -> Query:
+) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def breeding(breeding_code: Union[str, Iterable[str]]) -> Query:
+def breeding(breeding_code: Union[str, Iterable[str]]) -> Query:  # type: ignore
     pass
 
 
 @implicit_query
-def complete() -> Query:
+def complete() -> Query:  # type: ignore
     raise NotImplementedError
+
+
+# Extra queries
+
+
+def has_bcr(db_conn: sqlite3.Connection) -> Any:
+    q = Query()._update_filter(NotNull("bcr_id"))
+    return q.run(db_conn)
+
+
+def has_usfws(db_conn: sqlite3.Connection) -> Any:
+    q = Query()._update_filter(NotNull("usfws_code"))
+    return q.run(db_conn)
+
+
+def has_iba(db_conn: sqlite3.Connection) -> Any:
+    q = Query()._update_filter(NotNull("iba_coda"))
+    return q.run(db_conn)
