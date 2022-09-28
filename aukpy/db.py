@@ -203,7 +203,7 @@ class TableWrapper:
         # TODO: Optimization: Sort and drop_duplicates is probably faster.
         groups_to_idx = sub_frame.fillna("").groupby(list(cls.unique_columns)).groups
         new_idx = {g: idx[0] for g, idx in groups_to_idx.items() if g not in cache}
-        new_values = [sub_frame.loc[idx].tolist() for idx in new_idx.values()]
+        new_values = [sub_frame.loc[idx].tolist() for idx in new_idx.values()]  # type: ignore
 
         db.executemany(cls.insert_query, new_values)
         new_ids = dict(
@@ -481,9 +481,8 @@ def build_db_pandas(
         sqlite3.Connection: A connection to the finished database.
     """
     if output_path is None:
-        conn = sqlite3.connect(":memory:")
-    else:
-        conn = sqlite3.connect(str(output_path.absolute()))
+        output_path = config.DATA_HOME / f"{input_path.stem}.sqlite"
+    conn = sqlite3.connect(str(output_path.absolute()))
     create_tables(conn)
     # TODO: Max lines and seek
     df = read_clean(input_path)
@@ -523,13 +522,9 @@ def build_db_incremental(
 
     # Load partial csv
     subtable_cache: Dict[str, Dict[Any, int]] = {}
-    skipped = []
-
-    def on_skip(l):
-        skipped.append(l)
 
     for df in pd.read_csv(
-        input_path, sep="\t", chunksize=max_size, engine="c", on_bad_lines="warn"
+        input_path, sep="\t", chunksize=max_size, on_bad_lines="warn"
     ):
         df = clean_raw_obs(df)
 
@@ -542,5 +537,4 @@ def build_db_incremental(
         # Store main observations table
         ObservationWrapper.insert(df, conn)
         conn.commit()
-    print(skipped)
     return conn

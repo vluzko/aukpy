@@ -38,7 +38,6 @@ def disk_stats(csv_file: Path, db_file: Path, conn: sqlite3.Connection):
 
 def print_stats(stats: dict):
     print(f'Build time: {stats["build_time"]}')
-    print(f'Disk usage: {stats["data_stats"]}')
     print(f'\tCSV size: {stats["data_stats"]["csv_size"]}')
     print(f'\tSQL size: {stats["data_stats"]["sql_size"]}')
     print(f'\tRatio:    {stats["data_stats"]["compression"]}')
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     if len(argv) <= 1:
         print_stats(stats(SMALL))
         print_stats(stats(MEDIUM))
-    elif argv == "large":
+    elif argv[1] == "large":
         print_stats(stats(LARGE))
     else:
         print_stats(stats(Path(argv[1])))
