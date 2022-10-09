@@ -20,4 +20,4 @@ df = queries.species('Sturnus vulgaris').run(db_conn)
 
 ## Performance
 Observation file size vs `aukpy` file size:
-[![File size](https://www.github.com/vluzko/aukpy/docs/file_size.png)](https://www.github.com/vluzko/aukpy/docs/file_size.png)
+[![File size](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)
