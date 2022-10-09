@@ -6,14 +6,13 @@ MOCK_DATA = Path(__file__).parent / "mocked"
 SMALL = TEST_DATA / "small" / "observations.txt"
 MEDIUM = TEST_DATA / "medium" / "observations.txt"
 LARGE = TEST_DATA / "large" / "observations.txt"
-# A clean dataframe with non empty atlas codes
+SUBSAMPLED_DIR = TEST_DATA / "subsampled"
 
 # We skip any unmocked tests if the file doesn't exist
 SKIP_NON_MOCKED = {
     "condition": not SMALL.exists() or not MEDIUM.exists(),
     "reason": "Real datasets not available",
 }
-# SKIP_NON_MOCKED = (True, "")
 
 SMALL_DB = TEST_DATA / "small" / "observations.sqlite"
 MEDIUM_DB = TEST_DATA / "medium" / "observations.sqlite"

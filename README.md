@@ -16,3 +16,8 @@ from aukpy import db, queries
 db_conn = db.build_db_pandas('observations.txt')
 df = queries.species('Sturnus vulgaris').run(db_conn)
 ```
+
+
+## Performance
+Observation file size vs `aukpy` file size:
+[![File size](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)

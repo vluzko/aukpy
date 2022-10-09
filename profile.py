@@ -3,10 +3,11 @@ import sqlite3
 from pathlib import Path
 from sys import argv
 from time import time
+from typing import Any, Dict
 
 from aukpy import db
 
-from tests.db_test import SMALL, MEDIUM, LARGE
+from tests import SMALL, MEDIUM, LARGE, SUBSAMPLED_DIR
 
 
 def analyze_table(table_name: str, conn):
@@ -24,7 +25,7 @@ def disk_stats(csv_file: Path, db_file: Path, conn: sqlite3.Connection):
     csv_usage = csv_file.stat().st_size
     sqlite_usage = db_file.stat().st_size
 
-    data = {
+    data: Dict[str, Any] = {
         "csv_size": csv_usage,
         "sql_size": sqlite_usage,
         "compression": sqlite_usage / csv_usage,
@@ -58,12 +59,30 @@ def stats(csv_file: Path, incremental: bool = False):
         db_file.unlink()
     start = time()
     if incremental:
-        conn = db.build_db_pandas_incremental(csv_file, db_file)
+        conn = db.build_db_incremental(csv_file, db_file)
     else:
         conn = db.build_db_pandas(csv_file, db_file)
     end = time()
     disk = disk_stats(csv_file, db_file, conn)
     return {"build_time": end - start, "data_stats": disk}
+
+
+def plot_stats():
+    table_stats = [stats(x) for x in SUBSAMPLED_DIR.glob("*.tsv")]
+    num_rows = [
+        stat["data_stats"]["tables"]["observation"]["rows"] for stat in table_stats
+    ]
+    sql_sizes = [stat["data_stats"]["sql_size"] for stat in table_stats]
+    csv_sizes = [stat["data_stats"]["csv_size"] for stat in table_stats]
+    from matplotlib import pyplot as plt
+
+    _, ax = plt.subplots()
+    ax.scatter(num_rows, sql_sizes, label="SQL size")
+    ax.scatter(num_rows, csv_sizes, label="Original size")
+    ax.set_xlabel("Number of rows")
+    ax.set_ylabel("Stored Size")
+    ax.legend()
+    plt.savefig("docs/size.png")
 
 
 if __name__ == "__main__":
@@ -72,5 +91,7 @@ if __name__ == "__main__":
         print_stats(stats(MEDIUM))
     elif argv[1] == "large":
         print_stats(stats(LARGE))
+    elif argv[1] == "plot":
+        plot_stats()
     else:
         print_stats(stats(Path(argv[1])))

@@ -75,3 +75,25 @@ def extract_chunks(
 
     reader = pd.read_csv(path, sep="\t", chunksize=num_rows)
     raise NotImplementedError
+
+
+def generate_mocked():
+    raise NotImplementedError
+
+
+def generate_subsamples(in_path: Path, out_folder: Path):
+    df = db.read_clean(in_path)
+
+    rng_1 = range(len(df) // 100, len(df) // 10, len(df) // 100)
+    rng_2 = range(len(df) // 10, len(df), len(df) // 10)
+    for n_rows in list(rng_1) + list(rng_2):
+        new_df = subsample(df, num_rows=n_rows)
+        out_path = out_folder / f"subsample_{n_rows}.tsv"
+        new_df.to_csv(out_path, sep="\t", index=False)
+
+
+if __name__ == "__main__":
+    from sys import argv
+
+    if argv[1] == "subsample":
+        generate_subsamples(Path(argv[2]), Path(argv[3]))
