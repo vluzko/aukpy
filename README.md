@@ -1,4 +1,5 @@
 # aukpy
+[![PyPI version](https://badge.fury.io/py/aukpy.svg)](https://badge.fury.io/py/aukpy)
 [![CircleCI](https://circleci.com/gh/vluzko/aukpy.svg?style=shield)](https://circleci.com/gh/vluzko/aukpy)
 [![Documentation Status](https://readthedocs.org/projects/aukpy/badge/?version=latest)](https://aukpy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/vluzko/aukpy/branch/main/graph/badge.svg?token=YCS96F5R5F)](https://codecov.io/gh/vluzko/aukpy)
@@ -20,4 +21,4 @@ df = queries.species('Sturnus vulgaris').run(db_conn)
 
 ## Performance
 Observation file size vs `aukpy` file size:
-[![File size](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)](https://github.com/vluzko/aukpy/blob/compression-ratio/docs/size.png)
+[![File size](https://github.com/vluzko/aukpy/blob/main/docs/size.png)](https://github.com/vluzko/aukpy/blob/main/docs/size.png)

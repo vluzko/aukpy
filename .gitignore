@@ -9,5 +9,14 @@ dist/
 .idea/
 .hypothesis/
 
+# Large data sets
 tests/data/
 tests/mocked/medium.txt
+performance/observations.txt
+performance/filtered.txt
+
+
+# R
+.Rproj.user
+*.Rproj
+.Rhistory
